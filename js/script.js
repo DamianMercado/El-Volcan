@@ -75,3 +75,15 @@ let variable2 = "2";
 if (variable1 === variable2){
     console.log('hola estoy dentro del if');
 }
+
+
+function promedio1() {
+
+    let n1 = parseFloat(document.getElementById("nota1").value);
+    let n2 = parseFloat(document.getElementById("nota2").value);
+    let n3 = parseFloat(document.getElementById("nota3").value);
+
+    let resultado = (n1 + n2 + n3) / 3;
+
+    return resultado.toFixed(1);
+}
