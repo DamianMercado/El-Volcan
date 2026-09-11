@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis entregas - El Volcan</title>
+    <link rel="stylesheet" href="css/repartidorstyle.css">
+</head>
+<body>
+    <header>
+        <div class="titulo">
+            <h1>El Volcan</h1>
+            <p>Bienvenido, Repartidor</p>
+        </div>
+        <div class="perfil">
+            <div class="nombre">Carlos Ruiz<br>Ruta Norte</div>
+            <div class="avatar">CR</div>
+        </div>
+    </header>
+
+    <main>
+        <h2>Mapa de entregas</h2>
+        <iframe class="mapa" src="https://www.openstreetmap.org/export/embed.html?bbox=-70.7%2C-33.47%2C-70.62%2C-33.42&layer=mapnik" loading="lazy"></iframe>
+
+        <h2>Entregas pendientes de hoy</h2>
+
+        <div class="pedido">
+            <h3>Pedido #101</h3>
+            <p>Cliente: Maria Gomez</p>
+            <p>Direccion: Calle Las Flores #23</p>
+            <p>Cilindros: 2</p>
+            <span class="estado">Pendiente</span>
+            <br>
+            <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
+        </div>
+
+        <div class="pedido">
+            <h3>Pedido #102</h3>
+            <p>Cliente: Juan Perez</p>
+            <p>Direccion: Av. Central #45</p>
+            <p>Cilindros: 1</p>
+            <span class="estado">Pendiente</span>
+            <br>
+            <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
+        </div>
+
+        <div class="pedido">
+            <h3>Pedido #103</h3>
+            <p>Cliente: Ana Torres</p>
+            <p>Direccion: Barrio San Jose #10</p>
+            <p>Cilindros: 3</p>
+            <span class="estado entregado">Entregado</span>
+            <br>
+            <button class="btn-entregar" onclick="marcarEntregado(this)" disabled>Entregado</button>
+        </div>
+    </main>
+
+    <script src="js/repartidor.js"></script>
+</body>
+</html>
