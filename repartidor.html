@@ -22,37 +22,75 @@
         <h2>Mapa de entregas</h2>
         <iframe class="mapa" src="https://maps.google.com/maps?q=-33.445,-70.66&z=13&output=embed" loading="lazy"></iframe>
 
-        <h2>Entregas pendientes de hoy</h2>
-
-        <div class="pedido">
-            <h3>Pedido #101</h3>
-            <p>Cliente: Maria Gomez</p>
-            <p>Direccion: Calle Las Flores #23</p>
-            <p>Cilindros: 2 (5kg x1, 11kg x1)</p>
-            <span class="estado">Pendiente</span>
-            <br>
-            <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-pendientes" onclick="mostrarVista('pendientes')">Entregas de hoy</button>
+            <button class="tab-btn" id="tab-historial" onclick="mostrarVista('historial')">Historial de entregas</button>
         </div>
 
-        <div class="pedido">
-            <h3>Pedido #102</h3>
-            <p>Cliente: Juan Perez</p>
-            <p>Direccion: Av. Central #45</p>
-            <p>Cilindros: 1 (15kg x1)</p>
-            <span class="estado">Pendiente</span>
-            <br>
-            <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
-        </div>
+        <section id="vista-pendientes">
+            <h2>Entregas pendientes de hoy</h2>
 
-        <div class="pedido">
-            <h3>Pedido #103</h3>
-            <p>Cliente: Ana Torres</p>
-            <p>Direccion: Barrio San Jose #10</p>
-            <p>Cilindros: 3 (5kg x2, 11kg x1)</p>
-            <span class="estado entregado">Entregado</span>
-            <br>
-            <button class="btn-entregar" onclick="marcarEntregado(this)" disabled>Entregado</button>
-        </div>
+            <div class="pedido">
+                <h3>Pedido #101</h3>
+                <p>Cliente: Maria Gomez</p>
+                <p>Direccion: Calle Las Flores #23</p>
+                <p>Cilindros: 2 (5kg x1, 11kg x1)</p>
+                <span class="estado">Pendiente</span>
+                <br>
+                <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
+            </div>
+
+            <div class="pedido">
+                <h3>Pedido #102</h3>
+                <p>Cliente: Juan Perez</p>
+                <p>Direccion: Av. Central #45</p>
+                <p>Cilindros: 1 (15kg x1)</p>
+                <span class="estado">Pendiente</span>
+                <br>
+                <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
+            </div>
+
+            <div class="pedido">
+                <h3>Pedido #103</h3>
+                <p>Cliente: Ana Torres</p>
+                <p>Direccion: Barrio San Jose #10</p>
+                <p>Cilindros: 3 (5kg x2, 11kg x1)</p>
+                <span class="estado entregado">Entregado</span>
+                <br>
+                <button class="btn-entregar" onclick="marcarEntregado(this)" disabled>Entregado</button>
+            </div>
+        </section>
+
+        <section id="vista-historial" hidden>
+            <h2>Historial de entregas</h2>
+
+            <div class="pedido historial">
+                <h3>Pedido #103</h3>
+                <p>Cliente: Ana Torres</p>
+                <p>Direccion: Barrio San Jose #10</p>
+                <p>Cilindros: 3 (5kg x2, 11kg x1)</p>
+                <p class="fecha">Entregado el 11/09/2026</p>
+                <span class="estado entregado">Entregado</span>
+            </div>
+
+            <div class="pedido historial">
+                <h3>Pedido #098</h3>
+                <p>Cliente: Pedro Salinas</p>
+                <p>Direccion: Pasaje Los Aromos #5</p>
+                <p>Cilindros: 1 (11kg x1)</p>
+                <p class="fecha">Entregado el 10/09/2026</p>
+                <span class="estado entregado">Entregado</span>
+            </div>
+
+            <div class="pedido historial">
+                <h3>Pedido #095</h3>
+                <p>Cliente: Camila Reyes</p>
+                <p>Direccion: Av. Central #120</p>
+                <p>Cilindros: 2 (5kg x2)</p>
+                <p class="fecha">Entregado el 09/09/2026</p>
+                <span class="estado entregado">Entregado</span>
+            </div>
+        </section>
     </main>
 
     <script src="js/repartidor.js"></script>

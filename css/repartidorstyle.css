@@ -67,6 +67,38 @@ h2 {
     margin-bottom: 20px;
 }
 
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #d84315;
+    border-radius: 4px;
+    background-color: white;
+    color: #d84315;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background-color: #d84315;
+    color: white;
+}
+
+.pedido.historial {
+    border-left-color: #888;
+    opacity: 0.9;
+}
+
+.pedido .fecha {
+    font-size: 12px;
+    color: #888;
+}
+
 .pedido {
     background-color: white;
     border-left: 5px solid #d84315;
