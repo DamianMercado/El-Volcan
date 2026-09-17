@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/repartidorstyle.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
     <header>
@@ -15,13 +17,14 @@
             <p>Bienvenido, Repartidor</p>
         </div>
         <div class="perfil">
-            <div class="nombre">Carlos Ruiz<br>Ruta Norte</div>
+            <div class="nombre" data-comuna="Ñuñoa" data-provincia="Santiago" data-region="Región Metropolitana de Santiago">Carlos Ruiz<br>Ruta Norte</div>
             <div class="avatar">CR</div>
         </div>
     </header>
 
     <main>
         <h2>Mapa de entregas</h2>
+        <p class="ayuda-mapa">Selecciona un punto rojo para ver la ruta más corta desde tu ubicación.</p>
         <div id="mapa" class="mapa"></div>
 
         <div class="tabs">
