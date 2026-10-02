@@ -89,7 +89,7 @@ body {
 
 .register-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 800px;
     background-color: var(--color-primary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
@@ -112,9 +112,28 @@ body {
     font-size: 0.88rem;
     color: var(--color-secondary);
 }
+
 /* Grupos del formulario */
+.formulario-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.nombre-apellido-container,
+.correo-telefono-container,
+.password-container {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+
+}
+
 .form-group {
-    margin-bottom: 18px;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
 }
 .form-group label {
     display: block;
@@ -138,32 +157,14 @@ body {
     color: rgba(255, 255, 255, 0.35);
 }
 
-/* Opciones: Recordar sesión y recuperar clave */
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.75);
-    cursor: pointer;
-}
-.checkbox-label input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--color-accent);
-    cursor: pointer;
-}
-.forgot-link {
-    color: var(--color-secondary);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color var(--transition);
-}
-.forgot-link:hover {
-    color: var(--color-white);
-    text-decoration: underline;
-}
-/* Botón de envío (CTA) */
+/* Botón de envío */
 .btn-primary {
-    width: 100%;
+    margin-top: 20px;
+    width: 50%;
+    align-self: center;    /* Centra el botón dentro del contenedor flex */
+    display: block;
+    margin-left: auto;     /* Asegura el centrado horizontal */
+    margin-right: auto;
     padding: 12px;
     background-color: var(--color-accent);
     color: var(--color-white);
@@ -184,6 +185,7 @@ body {
     box-shadow: none;
 }
 
+/* Estilos para el footer */
 .footer {
     background-color: var(--color-primary);
     color: rgba(255, 255, 255, 0.8);
