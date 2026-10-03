@@ -1,5 +1,4 @@
 @import url(style.css);
-
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background-color: var(--color-bg);
@@ -79,7 +78,9 @@ body {
 .navbar-links li a.nav-btn-active:hover {
     background-color: #e03d00;
 }
+
 /* Estilos para el main */
+
 .main-content {
     flex: 1;
     display: flex;
@@ -88,31 +89,34 @@ body {
     padding: 40px 16px;
 }
 
-.login-card {
+.creacion-pedidos-card, .resumen-pedido-card {
     width: 100%;
     max-width: 420px;
     background-color: var(--color-primary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     padding: 40px 36px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
-.login-card-header {
+.creacion-pedidos-card-header {
     text-align: center;
     margin-bottom: 28px;
 }
 
-.login-card-header h1 {
+.creacion-pedidos-card-header h1 {
     font-size: 1.6rem;
     font-weight: 700;
     color: var(--color-white);
     margin-bottom: 6px;
 }
 
-.login-card-header p {
+.creacion-pedidos-card-header p {
     font-size: 0.88rem;
     color: var(--color-secondary);
 }
+
 /* Grupos del formulario */
 .form-group {
     margin-bottom: 18px;
@@ -124,7 +128,7 @@ body {
     color: rgba(255, 255, 255, 0.9);
     margin-bottom: 6px;
 }
-.form-group input {
+.form-group input{
     width: 100%;
     padding: 11px 14px;
     background-color: rgba(255, 255, 255, 0.07);
@@ -139,36 +143,6 @@ body {
     color: rgba(255, 255, 255, 0.35);
 }
 
-/* Opciones: Recordar sesión y recuperar clave */
-.form-options {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    font-size: 0.83rem;
-}
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.75);
-    cursor: pointer;
-}
-.checkbox-label input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--color-accent);
-    cursor: pointer;
-}
-.forgot-link {
-    color: var(--color-secondary);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color var(--transition);
-}
-.forgot-link:hover {
-    color: var(--color-white);
-    text-decoration: underline;
-}
 /* Botón de envío (CTA) */
 .btn-primary {
     width: 100%;
@@ -272,7 +246,7 @@ body {
         grid-template-columns: 1fr 1fr;
         gap: 24px;
     }
-    .login-card {
+    .creacion-pedidos-card {
         padding: 32px 24px;
     }
 }
@@ -283,7 +257,7 @@ body {
     .footer-container {
         grid-template-columns: 1fr;
     }
-    .login-card {
+    .creacion-pedidos-card {
         padding: 28px 18px;
     }
 }

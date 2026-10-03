@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Volcan - Login</title>
+    <link rel="stylesheet" href="css/creacion-pedidos.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="home.html" class="navbar-brand">
+                <span class="brand-name">El Volcán</span>
+                <span class="brand-tagline">Gas a la puerta de tu hogar.</span>
+            </a>
+            <ul class="navbar-links">
+                <li><a href="home.html">Inicio</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+                <li><a href="login.html" class="nav-btn-active">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Creacion Pedido Card -->
+
+    <main class="main-content">
+        <div class="creacion-pedidos-card">
+            <div class="creacion-pedidos-card-header">
+                <h1>Agregar al Pedido</h1>
+            </div>
+            <form action="/creacion-pedidos" method="POST" class="creacion-pedidos" id="creacion-pedidos-form">
+                <div id="alert-box"></div>
+
+                <div class="form-group">
+                    <label for="tipo-cilindro">Tipo de cilindro</label>
+                    <select id="tipo-cilindro" name="tipo-cilindro">
+                        <option class="cilindro" value="5">Cilindro 5k</option>
+                        <option class="cilindro" value="11">Cilindro 11k</option>
+                        <option class="cilindro" value="15">Cilindro 15k</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cantidad">Cantidad</label>
+                    <input type="text" id="cantidad" name="cantidad" placeholder="Cantidad de cilindros" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Agregar al pedido</button>
+            </form>
+        </div>
+    <!-- Resumen Card -->
+
+        <div class="resumen-pedido-card">
+            <div class="creacion-pedidos-card-header">
+                <h1>Resumen del Pedido</h1>
+            </div>
+            <form action="/creacion-pedidos" method="POST" class="creacion-pedidos" id="creacion-pedidos-form">
+                <div id="alert-box"></div>
+
+
+                <div class="form-group">
+                    <label for="password">Tipo Cilindro</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad">Cantidad</label>
+                </div>
+
+                <div class="form-group"> 
+                    <label class="checkbox-label">Utilizar mi direccion de cuenta</label>
+                    <input type="checkbox" name="recordar">
+
+                </div>
+
+                <div class="form-group">
+                    <label for="change-direction">Direccion 1</label>
+                    <input type="change-direction" id="change-direction" name="change-direction" placeholder="Calle n°" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="change-direction">Direccion 2</label>
+                    <input type="change-direction" id="change-direction" name="change-direction" placeholder="depto/block/piso" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="observacion-pedido">Observacion de la direccion</label>
+                    <input type="text" name="" id="" placeholder="Ej: Cierre perimetral negro, esquina Pereira">
+                </div>
+
+                div.
+
+                <button type="submit" class="btn-primary">Crear pedido</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <span class="titulo-footer">El Volcán</span>
+                </div>
+                <p class="footer-desc">Distribuidora de gas comprometida con la seguridad y calidad de servicio.</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>+56 9 1234 5678</p>
+                <p>contacto@elvolcan.cl</p>
+                <p>Chile</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>Servicios</h4>
+                <ul class="footer-links">
+                    <li><a href="pedidos-de-gas.html">Pedidos de Gas</a></li>
+                    <li><a href="seguimiento.html">Seguimiento</a></li>
+                    <li><a href="atencion-al-cliente.html">Atención al Cliente</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="terminos-y-condiciones.html">Términos y Condiciones</a></li>
+                    <li><a href="politica-de-privacidad.html">Política de Privacidad</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 El Volcán. Todos los derechos reservados.</p>
+        </div>
+
+    </footer>
+     <script src="js/login.js"></script>
+</body>
+</html>
