@@ -1,8 +1,8 @@
-@import url("style.css");
+@import url(style.css);
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
+    background-color: var(--color-bg);
     margin: 0;
     padding: 0;
 }
