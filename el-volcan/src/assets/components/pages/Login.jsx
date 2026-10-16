@@ -1,5 +1,11 @@
-export const CardLogin = () =>{
-    return (
+//import { useState } from 'react'
+import {Navbar} from "../layouts/Navbar";
+import {Footer} from "../layouts/Footer";
+
+export function Login() {
+
+  return (
+    <main class= "main-content">
         <div class="login-card">
             <div class="login-card-header">
                 <h1>Iniciar Sesión</h1>
@@ -27,5 +33,6 @@ export const CardLogin = () =>{
                 <button type="submit" class="btn-primary">Iniciar Sesión</button>
             </form>
         </div>
-    )
+    </main>
+  )
 }

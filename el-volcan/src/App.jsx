@@ -1,17 +1,14 @@
-//import { useState } from 'react'
-import {Navbar} from "./assets/components/Navbar";
-import {CardLogin} from "./assets/components/CardLogin";
-import {Footer} from "./assets/components/Footer";
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Layout } from "./assets/components/layouts/Layout.jsx";
+import { Login } from "./assets/components/pages/Login.jsx";
 export default function App() {
-
   return (
-    <main>
-      <Navbar/>
-
-      <CardLogin/>
-
-      <Footer/>
-    </main>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Login />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
