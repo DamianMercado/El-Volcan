@@ -1,90 +1,73 @@
+import { useState } from "react";
 import "./repartidorstyle.css";
+import { PedidoTicket } from "../components/PedidoTicket";
+import { repartidor, pedidosDeHoy, historialEjemplo } from "../data/pedidos";
+import { historial } from "../../data/pedidos";
+
+
 export function Repartidor() {
 
-    return(
-        
-        <div>
-             <h2>Mapa de entregas</h2>
-        <p class="ayuda-mapa">Selecciona un punto rojo para ver la ruta más corta desde tu ubicación.</p>
-        <div id="mapa" class="mapa"></div>
+    const [pedido, setPedidos] = useState(pedidosDeHoy);
+    const [historial, setHistorial] = useState(historialEjemplo);
+    const [visualViewport, setVista] = useState("pendientes");
+    const [destino, setDestino] = useState(null);
 
-        <div class="tabs">
-            <button class="tab-btn active" id="tab-pendientes" onclick="mostrarVista('pendientes')">Entregas de hoy</button>
-            <button class="tab-btn" id="tab-historial" onclick="mostrarVista('historial')">Historial de entregas</button>
-        </div>
-
-        <section id="vista-pendientes">
-            <h2>Entregas pendientes de hoy</h2>
-
-            <div class="pedido" data-lat="-33.4425" data-lng="-70.6580">
-                <h3>Pedido #101</h3>
-                <p>Cliente: Maria Gomez</p>
-                <p>Direccion: Calle Las Flores #23</p>
-                <p>Teléfono: +56935351003  </p>
-                <p>Cantidad de cilindros: 2 (5kg x1, 11kg x1)</p>
-                <span class="estado">Pendiente</span>
-                <br/>
-                <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
-            </div>
-
-            <div class="pedido" data-lat="-33.4470" data-lng="-70.6625">
-                <h3>Pedido #102</h3>
-                <p>Cliente: Juan Perez</p>
-                <p>Direccion: Av. Central #45</p>
-                <p>Teléfono: +56993646501  </p>
-                <p>Cantidad de cilindros: 1 (15kg x1)</p>
-                <span class="estado">Pendiente</span>
-                <br/>
-                <button class="btn-entregar" onclick="marcarEntregado(this)">Marcar como entregado</button>
-            </div>
-
-            <div class="pedido entregado" data-lat="-33.4490" data-lng="-70.6555">
-                <h3>Pedido #103</h3>
-                <p>Cliente: Ana Torres</p>
-                <p>Direccion: Barrio San Jose #10</p>
-                <p>Teléfono: +56983640173  </p>
-                <p>Cantidad de cilindros: 3 (5kg x2, 11kg x1)</p>
-                <span class="estado entregado">Entregado</span>
-                <br/>
-                <button class="btn-entregar" onclick="marcarEntregado(this)" disabled>Entregado</button>
-            </div>
-        </section>
-
-        <section id="vista-historial" hidden>
-            <h2>Historial de entregas</h2>
-
-            <div class="pedido historial">
-                <h3>Pedido #103</h3>
-                <p>Cliente: Ana Torres</p>
-                <p>Direccion: Barrio San Jose #10</p>
-                <p>Teléfono: +569xxxxxxxx</p>
-                <p>Cantidad de cilindros: 3 (5kg x2, 11kg x1)</p>
-                <p class="fecha">Entregado el 11/09/2026</p>
-                <span class="estado entregado">Entregado</span>
-            </div>
-
-            <div class="pedido historial">
-                <h3>Pedido #098</h3>
-                <p>Cliente: Pedro Salinas</p>
-                <p>Direccion: Pasaje Los Aromos #5</p>
-                <p>Teléfono: +569xxxxxxxx</p>
-                <p>Cantidad de cilindros: 1 (11kg x1)</p>
-                <p class="fecha">Entregado el 10/09/2026</p>
-                <span class="estado entregado">Entregado</span>
-            </div>
-
-            <div class="pedido historial">
-                <h3>Pedido #095</h3>
-                <p>Cliente: Camila Reyes</p>
-                <p>Direccion: Av. Central #120</p>
-                <p>Teléfono: +569xxxxxxxx</p>
-                <p>Cantidad de cilindros: 2 (5kg x2)</p>
-                <p></p>
-                <p class="fecha">Entregado el 09/09/2026</p>
-                <span class="estado entregado">Entregado</span>
-            </div>
-        </section>
-        </div>
-       
+  function marcarEntregado(pedido) {
+    setPedidos((anteriores) =>anteriores.map((p) => (p.id === pedido.id ? { ...p, entregado: true } : p))
     );
+
+    if (destino && destino.id === pedido.id) {
+        setDestino(null);
+    }
+
+    const hoy = new Date().toLocaleDateString("es-CL");
+    setHistorial((anteriores) => [{...pedido, entregado: true, fecha: hoy}, ...anteriores]);
+  }
+   
+  const esHistorial = vista === "historal";
+
+return (
+    <>
+      <h2>Mapa de entregas</h2>
+      <p className="ayuda-mapa">
+        Selecciona un punto rojo para ver la ruta más corta desde tu ubicación.
+      </p>
+
+      <MapaEntregas
+        pedidos={pedidos}
+        repartidor={repartidor}
+        destino={destino}
+        onSeleccionar={setDestino}
+      />
+
+      <div className="tabs">
+        <button
+          className={esHistorial ? "tab-btn" : "tab-btn active"}
+          onClick={() => setVista("pendientes")}
+        >
+          Entregas de hoy
+        </button>
+        <button
+          className={esHistorial ? "tab-btn active" : "tab-btn"}
+          onClick={() => setVista("historial")}
+        >
+          Historial de entregas
+        </button>
+      </div>
+
+      <section id="vista-pendientes" hidden={esHistorial}>
+        <h2>Entregas pendientes de hoy</h2>
+        {pedidos.map((pedido) => (
+          <PedidoCard key={pedido.id} pedido={pedido} onEntregar={marcarEntregado} />
+        ))}
+      </section>
+
+      <section id="vista-historial" hidden={!esHistorial}>
+        <h2>Historial de entregas</h2>
+        {historial.map((pedido, i) => (
+          <PedidoCard key={`${pedido.id}-${i}`} pedido={pedido} />
+        ))}
+      </section>
+    </>
+  );
 }
