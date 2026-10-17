@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import L from "./leafletGlobal"; 
+import L from "./MapaGlobal"; // debe ir ANTES de leaflet-routing-machine 
 import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";

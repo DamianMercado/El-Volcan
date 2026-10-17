@@ -74,13 +74,100 @@ header .titulo p {
 
 main {
     padding: 15px;
-    max-width: 500px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
 h2 {
     font-size: 18px;
     color: #333;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contador {
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    background-color: #d84315;
+    border-radius: 10px;
+    padding: 2px 8px;
+}
+
+/* Layout de la vista del repartidor */
+.panel-repartidor {
+    display: flex;
+    flex-direction: column;
+}
+
+.columna-principal {
+    min-width: 0;
+}
+
+.bloque-mapa {
+    margin-bottom: 10px;
+}
+
+.columna-historial {
+    margin-top: 20px;
+}
+
+/* Vista escritorio: mapa y pendientes a la izquierda, historial a la derecha */
+@media (min-width: 900px) {
+    main {
+        padding: 24px;
+    }
+
+    .panel-repartidor {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .bloque-mapa,
+    .vista,
+    .columna-historial {
+        background-color: white;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        padding: 16px;
+    }
+
+    .bloque-mapa {
+        margin-bottom: 24px;
+    }
+
+    .mapa {
+        height: 480px;
+        margin-bottom: 0;
+    }
+
+    .lista-pedidos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+
+    .lista-pedidos .pedido {
+        margin-bottom: 0;
+    }
+
+    .columna-historial {
+        margin-top: 0;
+        position: sticky;
+        top: 24px;
+        max-height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lista-historial {
+        overflow-y: auto;
+        padding-right: 4px;
+    }
 }
 
 .mapa {
@@ -89,28 +176,6 @@ h2 {
     border: 0;
     border-radius: 5px;
     margin-bottom: 20px;
-}
-
-.tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid #d84315;
-    border-radius: 4px;
-    background-color: white;
-    color: #d84315;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.tab-btn.active {
-    background-color: #d84315;
-    color: white;
 }
 
 .pedido.entregado {
