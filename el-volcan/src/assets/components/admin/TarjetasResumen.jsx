@@ -1,4 +1,4 @@
-import { estadoStock, formatearPesos } from "./utilidades";
+import { estadoStock, formatearPesos } from "../../data/utilidades";
 
 // Fila de tarjetas con los números principales.
 // No guarda nada: todo se calcula a partir de los datos que recibe.

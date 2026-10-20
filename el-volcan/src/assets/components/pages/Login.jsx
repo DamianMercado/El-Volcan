@@ -1,23 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { users } from "../../../datos/users.js";
+import { useState } from "react";
+import { users } from "../../data/users.js";
+import { guardarSesion, rutaSegunRol } from "../../data/sesion.js";
 
 
 export function Login() {
   const navigate = useNavigate(); // 2. Instanciar navigate
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [recordar, setRecordar] = useState(false);
-  const [alerta, setAlerta] = useState({ mensaje: "", tipo: "" });
-
   // Cargar email recordado al montar el componente
-  useEffect(() => {
-    const emailGuardado = localStorage.getItem("recordar_email");
-    if (emailGuardado) {
-      setEmail(emailGuardado);
-      setRecordar(true);
-    }
-  }, []);
+  const [email, setEmail] = useState(() => localStorage.getItem("recordar_email") || "");
+  const [password, setPassword] = useState("");
+  const [recordar, setRecordar] = useState(() => Boolean(localStorage.getItem("recordar_email")));
+  const [alerta, setAlerta] = useState({ mensaje: "", tipo: "" });
 
   function mostrarAlerta(mensaje, tipo = "error") {
     setAlerta({ mensaje, tipo });
@@ -41,10 +34,11 @@ export function Login() {
       } else {
         localStorage.removeItem("recordar_email");
       }
+      guardarSesion(usuarioEncontrado);
       mostrarAlerta(`¡Bienvenido, ${usuarioEncontrado.nombres}!`, "success");
 
       setTimeout(() => {
-        navigate("/"); // 3. Redirigir a la página de inicio
+        navigate(rutaSegunRol(usuarioEncontrado.rol)); // 3. Redirigir según el rol
       }, 1500); // Redirigir después de 1.5 segundos
 
     } else {

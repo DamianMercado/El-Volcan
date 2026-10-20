@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-// Formulario para pedir más stock al proveedor + lista de solicitudes.
-// codigo / onCambiarCodigo: el producto elegido lo controla la página,
-// así el botón "Solicitar" de la tabla de stock puede rellenarlo.
 export function SolicitarStock({
   productos,
   solicitudes,
@@ -19,7 +16,7 @@ export function SolicitarStock({
   const sugerido = producto ? Math.max(producto.minimo * 2 - producto.stock, 0) : 0;
 
   function enviar(evento) {
-    evento.preventDefault(); // evita que la página se recargue
+    evento.preventDefault(); 
 
     const numero = Number(cantidad);
     if (!producto) {

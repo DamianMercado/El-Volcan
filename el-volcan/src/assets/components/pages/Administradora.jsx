@@ -1,28 +1,26 @@
 import { useRef, useState } from "react";
-import "./administradorastyle.css";
-import { TarjetasResumen } from "../components/admin/TarjetasResumen";
-import { TablaStock } from "../components/admin/TablaStock";
-import { PedidosClientes } from "../components/admin/PedidosClientes";
-import { Repartidores } from "../components/admin/Repartidores";
-import { SolicitarStock } from "../components/admin/SolicitarStock";
-import { fechaDeHoy } from "../components/admin/utilidades";
+import "../../css/administradora.css";
+import { TarjetasResumen } from "../admin/TarjetasResumen";
+import { TablaStock } from "../admin/TablaStock";
+import { PedidosClientes } from "../admin/PedidosClientes";
+import { Repartidores } from "../admin/Repartidores";
+import { SolicitarStock } from "../admin/SolicitarStock";
+import { fechaDeHoy } from "../../data/utilidades";
 import {
   productosIniciales,
   pedidosClientesIniciales,
   repartidores,
   solicitudesIniciales,
-} from "../data/administracion";
+} from "../../data/administracion";
 
 export function Administradora() {
-  // ---------- Estado: los datos que pueden cambiar ----------
   const [productos, setProductos] = useState(productosIniciales);
   const [pedidos, setPedidos] = useState(pedidosClientesIniciales);
   const [solicitudes, setSolicitudes] = useState(solicitudesIniciales);
-  const [codigoSolicitud, setCodigoSolicitud] = useState(""); // producto elegido en el formulario
+  const [codigoSolicitud, setCodigoSolicitud] = useState(""); 
 
-  const formularioRef = useRef(null); // para bajar hasta el formulario
+  const formularioRef = useRef(null);
 
-  // ---------- Funciones que cambian el estado ----------
 
   // Botón "Solicitar" de la tabla de stock
   function elegirProducto(codigo) {
@@ -68,7 +66,6 @@ export function Administradora() {
     );
   }
 
-  // ---------- Lo que se muestra ----------
   return (
     <div className="admin">
       <h2>Panel de administración</h2>

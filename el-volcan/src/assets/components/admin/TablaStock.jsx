@@ -1,7 +1,5 @@
-import { estadoStock, formatearPesos } from "./utilidades";
+import { estadoStock, formatearPesos } from "../../data/utilidades";
 
-// Tabla con el stock de cada producto.
-// El botón "Solicitar" avisa a la página qué producto se eligió (onSolicitar).
 export function TablaStock({ productos, solicitudes, onSolicitar }) {
   // Códigos que ya tienen una solicitud pendiente
   const yaSolicitados = solicitudes

@@ -1,4 +1,4 @@
-import { administradora } from "../data/administracion";
+import { administradora } from "../../data/administracion";
 
 export function Header() {
   return (
