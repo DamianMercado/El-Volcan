@@ -19,7 +19,6 @@ export const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Marca / Logo */}
         <a
           onClick={(e) => {
             e.preventDefault();
