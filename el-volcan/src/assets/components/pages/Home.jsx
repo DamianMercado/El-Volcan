@@ -1,26 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import "../../css/home.css";
+import bannerDespacho from "../../img/home/banner-despacho.jpg";
 
 export function Home() {
   const navigate = useNavigate();
   return (
     <main className="home-container">
-      <div className="home-hero-card">
-        <h1 className="home-title">
-          Gas a la puerta de tu hogar
-        </h1>
-        <p className="home-description">
-          Pide tus cilindros de gas licuado y accesorios con la mejor atención,
-          rapidez y seguridad garantizada.
-        </p>
-
-        <button
-          className="home-cta-btn"
-          onClick={() => navigate("/productos")}
-        >
-          Crea tu pedido aquí →
-        </button>
-      </div>
+      <button
+        type="button"
+        className="home-banner"
+        onClick={() => navigate("/productos")}
+        aria-label="Haz tu pedido online"
+      >
+        <img
+          src={bannerDespacho}
+          alt="El Volcán: despacho a domicilio de cilindros de gas, reguladores y mangueras"
+          className="home-banner-img"
+        />
+      </button>
     </main>
   );
 }
