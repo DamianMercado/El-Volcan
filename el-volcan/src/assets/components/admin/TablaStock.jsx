@@ -1,7 +1,6 @@
 import { estadoStock, formatearPesos } from "../../data/utilidades";
 
 export function TablaStock({ productos, solicitudes, onSolicitar }) {
-  // Códigos que ya tienen una solicitud pendiente
   const yaSolicitados = solicitudes
     .filter((s) => s.estado === "Pendiente")
     .map((s) => s.codigo);

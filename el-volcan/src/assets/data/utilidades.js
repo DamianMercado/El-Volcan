@@ -1,6 +1,3 @@
-// Funciones de utilidad para pedidos, montos y administración.
-
-// Denominaciones oficiales en Chile
 export const BILLETES_CHILE = [20000, 10000, 5000, 2000, 1000];
 export const MONEDAS_CHILE = [500, 100, 50, 10];
 
@@ -11,6 +8,32 @@ export function formatearPesos(valor) {
     currency: "CLP",
     maximumFractionDigits: 0,
   }).format(valor || 0);
+}
+
+export const RUT_REGEX = /^\d{1,2}\.\d{3}\.\d{3}-[\dk]$/;
+export const TELEFONO_REGEX = /^\+569 \d{4} \d{4}$/;
+
+// Deja solo números y la "k" como dígito verificador: "20548481K" -> "20.548.481-k"
+export function formatearRut(valor) {
+  const limpio = valor.replace(/[^0-9kK]/g, "").toLowerCase();
+  const cuerpo = limpio.slice(0, -1).replace(/k/g, "").slice(0, 8);
+  const dv = limpio.slice(-1);
+
+  if (!cuerpo) return dv === "k" ? "" : dv;
+
+  const cuerpoConPuntos = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return cuerpoConPuntos + "-" + dv;
+}
+
+// Deja solo números (con "+" inicial): "56999999999" -> "+569 9999 9999"
+export function formatearTelefono(valor) {
+  const digitos = valor.replace(/\D/g, "").slice(0, 11);
+  if (!digitos) return valor.startsWith("+") ? "+" : "";
+
+  let resultado = "+" + digitos.slice(0, 3);
+  if (digitos.length > 3) resultado += " " + digitos.slice(3, 7);
+  if (digitos.length > 7) resultado += " " + digitos.slice(7, 11);
+  return resultado;
 }
 
 // Devuelve "Crítico", "Bajo" u "OK" según el stock y el mínimo del producto

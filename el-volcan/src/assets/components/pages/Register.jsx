@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registrarUsuario } from "../../data/users.js";
+import {
+  RUT_REGEX,
+  TELEFONO_REGEX,
+  formatearRut,
+  formatearTelefono,
+} from "../../data/utilidades.js";
 import "../../css/register.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,6 +68,18 @@ export function Register() {
       !confirmPassword
     ) {
       mostrarAlerta("Por favor, completa todos los campos obligatorios.");
+      return;
+    }
+
+    // Validar formato de RUT
+    if (!RUT_REGEX.test(rutTrim)) {
+      mostrarAlerta("Por favor, ingresa un RUT válido. Ej: 20.548.481-k");
+      return;
+    }
+
+    // Validar formato de teléfono
+    if (!TELEFONO_REGEX.test(telefonoTrim)) {
+      mostrarAlerta("Por favor, ingresa un teléfono válido. Ej: +569 xxxx xxxx");
       return;
     }
 
@@ -191,8 +209,9 @@ export function Register() {
                 id="rut"
                 className="entrada-campo-registro"
                 value={rut}
-                onChange={(e) => setRut(e.target.value)}
-                placeholder="12.345.678-9"
+                onChange={(e) => setRut(formatearRut(e.target.value))}
+                placeholder="20.548.481-k"
+                maxLength={12}
                 required
               />
             </div>
@@ -206,8 +225,10 @@ export function Register() {
                 id="telefono"
                 className="entrada-campo-registro"
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                placeholder="+56 9 1234 5678"
+                onChange={(e) => setTelefono(formatearTelefono(e.target.value))}
+                placeholder="+569 9999 9999"
+                inputMode="numeric"
+                maxLength={14}
                 required
               />
             </div>

@@ -3,7 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCarrito } from "../../../contexts/Carrito.jsx";
 import { obtenerSesion } from "../../data/sesion.js";
 import { crearNuevoPedido } from "../../data/pedidos.js";
-import { formatearPesos } from "../../data/utilidades.js";
+import {
+  formatearPesos,
+  formatearTelefono,
+  TELEFONO_REGEX,
+} from "../../data/utilidades.js";
 import "../../css/pedido.css";
 
 export function CreacionPedido() {
@@ -23,7 +27,9 @@ export function CreacionPedido() {
   const [nombreCliente, setNombreCliente] = useState(
     usuario ? `${usuario.nombres || ""} ${usuario.apellidos || ""}`.trim() : ""
   );
-  const [telefonoCliente, setTelefonoCliente] = useState(usuario?.telefono || "");
+  const [telefonoCliente, setTelefonoCliente] = useState(
+    formatearTelefono(usuario?.telefono || "")
+  );
 
   // Estados de dirección de entrega
   const [direccion1, setDireccion1] = useState(usuario?.direccion || "");
@@ -62,7 +68,7 @@ export function CreacionPedido() {
 
     if (usarDirCuenta && usuario?.direccion) {
       nombreFinal = `${usuario.nombres || ""} ${usuario.apellidos || ""}`.trim() || "Cliente El Volcán";
-      telefonoFinal = usuario.telefono || telefonoCliente.trim() || "+56 9 8765 4321";
+      telefonoFinal = usuario.telefono || telefonoCliente.trim() || "+569 xxxx xxx";
       direccionFinal = `${usuario.direccion}${usuario.depto ? `, Depto ${usuario.depto}` : ""}, ${usuario.comuna || "Santiago"}`;
     } else {
       if (!nombreFinal) {
@@ -75,6 +81,13 @@ export function CreacionPedido() {
       if (!telefonoFinal) {
         setAlerta({
           mensaje: "Por favor, ingresa un teléfono de contacto para que el repartidor pueda coordinar la entrega.",
+          tipo: "error",
+        });
+        return;
+      }
+      if (!TELEFONO_REGEX.test(telefonoFinal)) {
+        setAlerta({
+          mensaje: "Por favor, ingresa un teléfono válido. Ej: +569 xxxx xxxx",
           tipo: "error",
         });
         return;
@@ -98,8 +111,7 @@ export function CreacionPedido() {
     }
 
     // FLUJO 1: PAGAR AHORA (En línea)
-    // Se genera el pedido en estado 'pendiente' de pago y se redirige a la pasarela
-    // Cuando el cliente completa el pago, se muestra 'pedido-creado' con estado 'pagado'
+
     if (metodoPago === "pagar_ahora") {
       const nuevoPedido = crearNuevoPedido({
         cliente: nombreFinal,
@@ -134,7 +146,6 @@ export function CreacionPedido() {
     }
 
     // FLUJO 2: PAGO AL REPARTIDOR (Efectivo o Tarjeta POS)
-    // Se genera el pedido inmediatamente y se muestra 'pedido-creado' con el estado 'pendiente' y comprobante para el repartidor
     if (metodoPago === "efectivo") {
       const nuevoPedido = crearNuevoPedido({
         cliente: nombreFinal,
@@ -413,9 +424,11 @@ export function CreacionPedido() {
                       <input
                         type="tel"
                         id="telefono-cliente"
-                        placeholder="+56 9 1234 5678"
+                        placeholder="+569 9999 9999"
+                        inputMode="numeric"
+                        maxLength={14}
                         value={telefonoCliente}
-                        onChange={(e) => setTelefonoCliente(e.target.value)}
+                        onChange={(e) => setTelefonoCliente(formatearTelefono(e.target.value))}
                         required
                       />
                     </div>

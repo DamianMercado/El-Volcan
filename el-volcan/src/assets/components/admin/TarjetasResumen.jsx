@@ -1,7 +1,5 @@
 import { estadoStock, formatearPesos } from "../../data/utilidades";
 
-// Fila de tarjetas con los números principales.
-// No guarda nada: todo se calcula a partir de los datos que recibe.
 export function TarjetasResumen({ productos, pedidos, solicitudes }) {
   const valorInventario = productos.reduce((total, p) => total + p.stock * p.precio, 0);
   const unidades = productos.reduce((total, p) => total + p.stock, 0);

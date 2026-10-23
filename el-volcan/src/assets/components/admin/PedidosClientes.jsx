@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-// Tabla con los pedidos de los clientes.
-// Se puede filtrar por estado y asignar un repartidor a los pedidos pendientes.
 export function PedidosClientes({ pedidos, repartidores, onAsignar }) {
   const [filtro, setFiltro] = useState("Todos");
 

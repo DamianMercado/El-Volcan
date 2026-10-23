@@ -1,5 +1,3 @@
-// Una tarjeta por repartidor con el avance de sus entregas.
-// Los números se calculan contando los pedidos que tiene asignados.
 export function Repartidores({ repartidores, pedidos }) {
   return (
     <div className="admin-repartidores">
