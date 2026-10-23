@@ -66,3 +66,22 @@
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.45);
 }
+
+@media (max-width: 900px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        padding: 0 20px 32px;
+    }
+}
+
+@media (max-width: 540px) {
+    .footer {
+        padding-top: 36px;
+    }
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        padding: 0 16px 28px;
+    }
+}

@@ -3,7 +3,7 @@ import { Layout } from "./assets/components/layouts/Layout.jsx";
 import { Login } from "./assets/components/pages/Login.jsx";
 import { Register } from "./assets/components/pages/Register.jsx";
 import { Home } from "./assets/components/pages/Home.jsx";
-import { Pedido } from "./assets/components/pages/Pedido.jsx";
+import { CreacionPedido } from "./assets/components/pages/CreacionPedido.jsx";
 import { Productos } from "./assets/components/pages/Productos.jsx";
 import { CartProvider } from "./contexts/CartContext.jsx";
 import { Administradora } from "./assets/components/pages/Administradora.jsx";
@@ -26,7 +26,8 @@ export default function App() {
                 </RutaProtegida>
               }
             />
-            <Route path="pedido" element={<Pedido />} />
+            <Route path="creacion-pedido" element={<CreacionPedido />} />
+            <Route path="pedido" element={<CreacionPedido />} />
             <Route path="productos" element={<Productos />} />
           </Route>
         </Routes>

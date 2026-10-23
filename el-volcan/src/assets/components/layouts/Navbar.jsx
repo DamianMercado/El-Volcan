@@ -51,7 +51,7 @@ export const Navbar = () => {
             <button
               type="button"
               className="nav-cart-btn"
-              onClick={() => irA("/pedido")}
+              onClick={() => irA("/creacion-pedido")}
               title="Ver resumen y pagar pedido"
             >
               <span>🛒</span>
@@ -84,7 +84,7 @@ export const Navbar = () => {
           <button
             type="button"
             className="mobile-cart-btn"
-            onClick={() => irA("/pedido")}
+            onClick={() => irA("/creacion-pedido")}
           >
             <span>🛒</span>
             {cantidadTotal > 0 && (
@@ -118,7 +118,7 @@ export const Navbar = () => {
             <button onClick={() => irA("/productos")} className="nav-btn">
               Productos
             </button>
-            <button onClick={() => irA("/pedido")} className="nav-btn">
+            <button onClick={() => irA("/creacion-pedido")} className="nav-btn">
               <span>Resumen de Pedido</span>
               {cantidadTotal > 0 && (
                 <span className="cart-total-amount" style={{ marginLeft: "8px" }}>

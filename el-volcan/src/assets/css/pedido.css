@@ -3,8 +3,9 @@
   flex: 1;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   padding: 32px 16px;
-
+  width: 100%;
 }
 
 .pedido-card {
@@ -19,6 +20,7 @@
   flex-direction: column;
   min-height: 480px;
   animation: fadeIn 0.3s ease;
+  box-sizing: border-box;
 }
 
 .pedido-header {
@@ -89,25 +91,31 @@
 }
 
 .pedido-item-nombre {
-  display: block;
-  font-size: 0.875rem;
-  color: var(--color-white);
-  font-weight: 500;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: var(--color-white);
+  font-weight: 500;
+  word-break: break-word;
 }
 
 .pedido-item-precio {
-  font-size: 0.75rem;
+  display: block;
+  font-size: 0.78rem;
   color: var(--color-secondary);
   font-weight: 600;
+  margin-top: 2px;
 }
 
 .pedido-item-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .qty-controls {
@@ -120,7 +128,7 @@
 }
 
 .qty-btn {
-  padding: 4px 10px;
+  padding: 5px 10px;
   background: transparent;
   color: var(--color-white);
   border: none;
@@ -202,7 +210,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(0, 168, 232, 0.3);
   background-color: rgba(255, 255, 255, 0.05);
@@ -210,6 +218,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   transition: border-color var(--transition), background-color var(--transition);
+  user-select: none;
 }
 
 .payment-radio-label.selected {
@@ -217,25 +226,315 @@
   background-color: rgba(255, 69, 0, 0.15);
 }
 
-.payment-radio-label input[type="radio"] {
+.payment-radio-label input[type="radio"],
+.payment-radio-label input[type="checkbox"] {
   accent-color: var(--color-accent);
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.pago-repartidor-container {
+  margin-top: 14px;
+  padding: 14px;
+  background-color: rgba(0, 168, 232, 0.08);
+  border: 1px dashed rgba(0, 168, 232, 0.4);
+  border-radius: var(--radius-md);
+  animation: fadeIn 0.2s ease;
+}
+
+.pago-repartidor-titulo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-bottom: 10px;
+}
+
+.payment-submethods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.payment-radio-label.submethod {
+  padding: 10px 12px;
+  font-size: 0.825rem;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Manejo de Vuelto en Efectivo */
+.vuelto-efectivo-container {
+  margin-top: 14px;
+  padding: 14px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 168, 232, 0.25);
+  animation: fadeIn 0.25s ease;
+}
+
+.vuelto-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-white);
+  margin-bottom: 4px;
+}
+
+.vuelto-help {
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.billetes-sugeridos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.btn-billete {
+  padding: 8px 12px;
+  background-color: rgba(0, 168, 232, 0.15);
+  border: 1px solid rgba(0, 168, 232, 0.4);
+  color: var(--color-white);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition), transform var(--transition);
+  touch-action: manipulation;
+}
+
+.btn-billete:hover {
+  background-color: rgba(0, 168, 232, 0.3);
+  border-color: var(--color-secondary);
+}
+
+.btn-billete.active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(255, 69, 0, 0.4);
+}
+
+.vuelto-resumen {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+}
+
+.vuelto-alerta-insuficiente {
+  display: block;
+  color: #f87171;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.vuelto-alerta-exacto {
+  display: block;
+  color: #34d399;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.vuelto-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-white);
+  gap: 8px;
+}
+
+.vuelto-monto {
+  font-size: 1.15rem;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.vuelto-desglose {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vuelto-desglose-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vuelto-desglose-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.vuelto-desglose-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.vuelto-grupo-tag {
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.vuelto-grupo-tag.billetes-tag {
+  background-color: rgba(0, 168, 232, 0.25);
+  color: #7dd3fc;
+  border: 1px solid rgba(0, 168, 232, 0.4);
+}
+
+.vuelto-grupo-tag.monedas-tag {
+  background-color: rgba(251, 191, 36, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.vuelto-grupo-detalles {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
 }
 
 .btn-confirmar-pedido {
   width: 100%;
-  padding: 12px;
+  padding: 14px 16px;
   background-color: var(--color-accent);
   color: var(--color-white);
   font-weight: 700;
+  font-size: 0.95rem;
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(255, 69, 0, 0.3);
   margin-top: 16px;
   transition: background-color var(--transition);
+  touch-action: manipulation;
 }
 
 .btn-confirmar-pedido:hover {
   background-color: #e03d00;
 }
 
+/* ==========================================================================
+   RESPONSIVE DESIGN (Tablets y Móviles)
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .pedido-container {
+    padding: 18px 12px;
+  }
+
+  .pedido-card {
+    padding: 24px 18px;
+    border-radius: var(--radius-md);
+    min-height: auto;
+  }
+
+  .pedido-header {
+    margin-bottom: 20px;
+  }
+
+  .pedido-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .pedido-header p {
+    font-size: 0.82rem;
+  }
+
+  .pedido-section-title {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 500px) {
+  .pedido-container {
+    padding: 12px 8px;
+  }
+
+  .pedido-card {
+    padding: 20px 14px;
+  }
+
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .pago-repartidor-container {
+    padding: 12px 10px;
+  }
+
+  .billetes-sugeridos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .btn-billete {
+    text-align: center;
+    padding: 9px 8px;
+    font-size: 0.8rem;
+  }
+
+  .pedido-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .pedido-total-row {
+    font-size: 0.95rem;
+  }
+
+  .pedido-total-amount {
+    font-size: 1.15rem;
+  }
+
+  .btn-confirmar-pedido {
+    padding: 13px 14px;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .pedido-card {
+    padding: 16px 10px;
+  }
+
+  .payment-submethods-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vuelto-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .vuelto-monto {
+    font-size: 1.25rem;
+  }
+}
