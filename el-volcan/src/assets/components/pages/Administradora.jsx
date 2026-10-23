@@ -8,19 +8,18 @@ import { SolicitarStock } from "../admin/SolicitarStock";
 import { fechaDeHoy } from "../../data/utilidades";
 import {
   productosIniciales,
-  pedidosClientesIniciales,
   repartidores,
   solicitudesIniciales,
 } from "../../data/administracion";
+import { obtenerPedidos, asignarRepartidorPedido } from "../../data/pedidos";
 
 export function Administradora() {
   const [productos, setProductos] = useState(productosIniciales);
-  const [pedidos, setPedidos] = useState(pedidosClientesIniciales);
+  const [pedidos, setPedidos] = useState(() => obtenerPedidos());
   const [solicitudes, setSolicitudes] = useState(solicitudesIniciales);
   const [codigoSolicitud, setCodigoSolicitud] = useState(""); 
 
   const formularioRef = useRef(null);
-
 
   // Botón "Solicitar" de la tabla de stock
   function elegirProducto(codigo) {
@@ -59,11 +58,8 @@ export function Administradora() {
 
   // Selector "Asignar…" de un pedido pendiente
   function asignarRepartidor(idPedido, nombreRepartidor) {
-    setPedidos((anteriores) =>
-      anteriores.map((p) =>
-        p.id === idPedido ? { ...p, repartidor: nombreRepartidor, estado: "En ruta" } : p
-      )
-    );
+    const pedidosActualizados = asignarRepartidorPedido(idPedido, nombreRepartidor);
+    setPedidos(pedidosActualizados);
   }
 
   return (

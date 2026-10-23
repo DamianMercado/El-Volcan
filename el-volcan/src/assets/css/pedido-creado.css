@@ -1,0 +1,656 @@
+/* ========================================================
+   ESTILOS PARA LA VISTA DE PEDIDO CREADO: RECIBO DE VENTAS
+   Diseño profesional formal basado en plantilla de facturación
+   Sin íconos, tipografía limpia y tabla con celdas sombreadas
+   ======================================================== */
+
+.contenedor-recibo-pagina {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 36px 16px;
+  width: 100%;
+  background-color: var(--color-bg);
+}
+
+.envoltorio-recibo-pagina {
+  width: 100%;
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ========================================================
+   HOJA DEL RECIBO FORMAL (DOCUMENTO 1:1 CON LA PLANTILLA)
+   ======================================================== */
+.hoja-recibo-documento {
+  background-color: #ffffff;
+  color: #1a202c;
+  padding: 42px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+/* 1. Cabecera del Documento */
+.recibo-seccion-cabecera {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 28px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.recibo-titulo-documento {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #4a89dc;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.recibo-empresa-datos p {
+  color: #374151;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.recibo-empresa-datos .empresa-nombre {
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.92rem;
+}
+
+/* Tablas de metadatos con celdas sombreadas */
+.tabla-metadatos-recibo {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #94a3b8;
+}
+
+.tabla-metadatos-recibo td {
+  padding: 6px 10px;
+  border: 1px solid #94a3b8;
+  font-size: 0.78rem;
+}
+
+.tabla-metadatos-recibo .meta-etiqueta {
+  background-color: #64748b;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  width: 44%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tabla-metadatos-recibo .meta-valor {
+  background-color: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tabla-metadatos-recibo .meta-valor.destacado {
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.5px;
+}
+
+/* 2. Sección Vendedor/Pago y Bloque de Cliente */
+.recibo-seccion-datos-entrega {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 28px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.tabla-datos-pago .meta-etiqueta {
+  width: 48%;
+}
+
+.recibo-bloque-cliente {
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 2px;
+}
+
+.cliente-destinatario-etiqueta {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.cliente-nombre-principal {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.cliente-direccion-linea,
+.cliente-telefono-linea,
+.cliente-correo-linea {
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+/* 3. Tabla Principal de Artículos */
+.recibo-seccion-articulos {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.recibo-tabla-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabla-articulos-recibo {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #64748b;
+}
+
+.tabla-articulos-recibo th {
+  background-color: #64748b;
+  color: #ffffff;
+  padding: 8px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #64748b;
+}
+
+.th-articulo {
+  width: 18%;
+  text-align: left;
+}
+
+.th-descripcion {
+  width: 40%;
+  text-align: left;
+}
+
+.th-cantidad {
+  width: 12%;
+  text-align: center;
+}
+
+.th-precio {
+  width: 15%;
+  text-align: right;
+}
+
+.th-total {
+  width: 15%;
+  text-align: right;
+}
+
+.tabla-articulos-recibo td {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.82rem;
+  color: #1e293b;
+}
+
+.tabla-articulos-recibo .celda-codigo {
+  font-weight: 600;
+  color: #475569;
+}
+
+.tabla-articulos-recibo .celda-descripcion {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.tabla-articulos-recibo .celda-cantidad {
+  text-align: center;
+  font-weight: 700;
+}
+
+.tabla-articulos-recibo .celda-precio,
+.tabla-articulos-recibo .celda-total {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-articulos-recibo .celda-total {
+  font-weight: 700;
+}
+
+/* 4. Sección Observaciones y Totales */
+.recibo-seccion-totales {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.caja-observaciones-recibo {
+  border: 1px solid #94a3b8;
+  padding: 10px 12px;
+  min-height: 94px;
+  background-color: #ffffff;
+}
+
+.observaciones-titulo {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.observaciones-contenido {
+  font-size: 0.8rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.instruccion-repartidor-texto {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #cbd5e1;
+  color: #0f172a;
+}
+
+.recibo-agradecimiento-bloque {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.agradecimiento-texto {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+
+.recibo-casillas-pago {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.casilla-item.seleccionada {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+/* Tabla de Totales */
+.tabla-totales-recibo {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #94a3b8;
+}
+
+.tabla-totales-recibo td {
+  padding: 6px 10px;
+  border: 1px solid #94a3b8;
+  font-size: 0.8rem;
+}
+
+.tabla-totales-recibo .totales-etiqueta {
+  background-color: #64748b;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  width: 50%;
+}
+
+.tabla-totales-recibo .totales-valor {
+  text-align: right;
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-totales-recibo .fila-total-principal td {
+  background-color: #475569;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.tabla-totales-recibo .fila-total-principal .totales-valor {
+  color: #ffffff;
+}
+
+/* Pie de contacto */
+.recibo-contacto-pie {
+  text-align: center;
+  font-size: 0.74rem;
+  color: #64748b;
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  line-height: 1.4;
+}
+
+.web-destacada {
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+}
+
+/* 5. Línea de corte para el talón */
+.linea-corte-talon {
+  border-top: 1.5px dashed #94a3b8;
+  margin: 28px 0 20px 0;
+  position: relative;
+  text-align: center;
+}
+
+.etiqueta-linea-corte {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  padding: 0 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1.2px;
+}
+
+/* 6. Talón de Recepción y Entrega */
+.recibo-seccion-talon {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.talon-caja-header {
+  background-color: #64748b;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.talon-cliente-info {
+  font-size: 0.8rem;
+  color: #334155;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.talon-firmas-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.talon-firma-campo {
+  text-align: center;
+}
+
+.linea-firma {
+  border-bottom: 1px solid #475569;
+  margin-bottom: 5px;
+  height: 28px;
+}
+
+.talon-firma-campo span {
+  font-size: 0.66rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: block;
+}
+
+.talon-titulo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #4a89dc;
+  letter-spacing: 0.5px;
+  text-align: right;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.talon-pie-datos {
+  text-align: right;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 10px;
+  line-height: 1.35;
+}
+
+/* ========================================================
+   ACCIONES DE NAVEGACIÓN EN PANTALLA
+   ======================================================== */
+.recibo-acciones-navegacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.boton-accion-descargar {
+  padding: 11px 22px;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(255, 69, 0, 0.28);
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.boton-accion-descargar:hover {
+  background-color: #e03d00;
+  transform: translateY(-1px);
+}
+
+.boton-accion-secundario {
+  padding: 11px 20px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: 1px solid rgba(0, 168, 232, 0.4);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.boton-accion-secundario:hover {
+  background-color: #0f355c;
+}
+
+.boton-accion-admin {
+  padding: 11px 20px;
+  background-color: rgba(255, 69, 0, 0.12);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.boton-accion-admin:hover {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.caja-sin-pedido {
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 40px 24px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.caja-sin-pedido h2 {
+  font-size: 1.3rem;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.caja-sin-pedido p {
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+/* ========================================================
+   MODO IMPRESIÓN (@media print)
+   Imprime exclusivamente la hoja del recibo en hoja completa
+   ======================================================== */
+@media print {
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .navbar,
+  .footer,
+  .recibo-acciones-navegacion {
+    display: none !important;
+  }
+
+  .contenedor-recibo-pagina {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  .envoltorio-recibo-pagina {
+    max-width: 100% !important;
+    width: 100% !important;
+    gap: 0 !important;
+  }
+
+  .hoja-recibo-documento {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 12mm 10mm !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+}
+
+/* ========================================================
+   RESPONSIVE (Tablets y Móviles)
+   ======================================================== */
+@media (max-width: 768px) {
+  .hoja-recibo-documento {
+    padding: 20px 14px;
+  }
+
+  .recibo-seccion-cabecera,
+  .recibo-seccion-datos-entrega,
+  .recibo-seccion-totales,
+  .recibo-seccion-talon {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .recibo-tabla-scroll-wrapper {
+    margin: 0 -4px;
+    padding-bottom: 4px;
+  }
+
+  .tabla-articulos-recibo {
+    min-width: 460px; /* Asegura que la tabla nunca se corte y permita scroll horizontal fluido */
+    font-size: 0.78rem;
+  }
+
+  .tabla-articulos-recibo th,
+  .tabla-articulos-recibo td {
+    padding: 7px 6px;
+  }
+
+  .tabla-articulos-recibo .celda-precio,
+  .tabla-articulos-recibo .celda-total {
+    padding-right: 8px;
+  }
+
+  .talon-titulo {
+    text-align: left;
+  }
+
+  .talon-pie-datos {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .hoja-recibo-documento {
+    padding: 16px 10px;
+    border-radius: 6px;
+  }
+
+  .recibo-titulo-documento {
+    font-size: 1.25rem;
+  }
+
+  .tabla-articulos-recibo {
+    min-width: 440px;
+    font-size: 0.74rem;
+  }
+
+  .tabla-articulos-recibo th,
+  .tabla-articulos-recibo td {
+    padding: 6px 5px;
+  }
+
+  .recibo-acciones-navegacion {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .boton-accion-descargar,
+  .boton-accion-secundario,
+  .boton-accion-admin {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}

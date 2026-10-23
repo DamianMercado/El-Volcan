@@ -1,95 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../../../contexts/CartContext.jsx";
+import { useNavigate, Link } from "react-router-dom";
+import { useCarrito } from "../../../contexts/Carrito.jsx";
+import { obtenerSesion } from "../../data/sesion.js";
+import { crearNuevoPedido } from "../../data/pedidos.js";
+import { formatearPesos } from "../../data/utilidades.js";
 import "../../css/pedido.css";
-
-// Denominaciones oficiales en Chile
-const BILLETES_CHILE = [20000, 10000, 5000, 2000, 1000];
-const MONEDAS_CHILE = [500, 100, 50, 10];
-
-// Calcula sugerencias de montos con billetes y monedas (redondeos a 500, 1.000, 2.000, 5.000, 10.000, etc.)
-function obtenerSugerenciasMonto(montoTotal) {
-  if (!montoTotal || montoTotal <= 0) return [5000, 10000, 20000];
-
-  const sugerencias = new Set();
-
-  // Redondeo al siguiente múltiplo de 500 (moneda de $500)
-  if (montoTotal % 500 !== 0) {
-    const sig500 = Math.ceil(montoTotal / 500) * 500;
-    if (sig500 > montoTotal) sugerencias.add(sig500);
-  }
-
-  // Redondeo al siguiente múltiplo de 1.000
-  if (montoTotal % 1000 !== 0) {
-    const sig1000 = Math.ceil(montoTotal / 1000) * 1000;
-    if (sig1000 > montoTotal) sugerencias.add(sig1000);
-  }
-
-  // Billetes estándar mayores al total
-  for (const b of [1000, 2000, 5000, 10000, 20000]) {
-    if (b > montoTotal) {
-      sugerencias.add(b);
-    }
-  }
-
-  // Para montos superiores a 20.000
-  if (montoTotal >= 20000) {
-    const sig10k = Math.ceil(montoTotal / 10000) * 10000;
-    const sig20k = Math.ceil(montoTotal / 20000) * 20000;
-    if (sig10k > montoTotal) sugerencias.add(sig10k);
-    if (sig20k > montoTotal) sugerencias.add(sig20k);
-    sugerencias.add((sig20k || sig10k) + 10000);
-  }
-
-  return Array.from(sugerencias)
-    .filter((val) => val > montoTotal)
-    .sort((a, b) => a - b)
-    .slice(0, 4);
-}
-
-// Desglosa el vuelto en billetes y monedas de Chile (disponible para vista de repartidor)
-export function calcularDesgloseVuelto(montoVuelto) {
-  if (!montoVuelto || montoVuelto <= 0) {
-    return {
-      totalBilletes: 0,
-      totalMonedas: 0,
-      billetes: [],
-      monedas: [],
-    };
-  }
-
-  let restante = montoVuelto;
-  const billetes = [];
-  let totalBilletes = 0;
-
-  for (const d of BILLETES_CHILE) {
-    if (restante >= d) {
-      const cant = Math.floor(restante / d);
-      restante = restante % d;
-      totalBilletes += cant * d;
-      billetes.push({ denominacion: d, cantidad: cant });
-    }
-  }
-
-  const monedas = [];
-  let totalMonedas = 0;
-
-  for (const d of MONEDAS_CHILE) {
-    if (restante >= d) {
-      const cant = Math.floor(restante / d);
-      restante = restante % d;
-      totalMonedas += cant * d;
-      monedas.push({ denominacion: d, cantidad: cant });
-    }
-  }
-
-  return {
-    totalBilletes,
-    totalMonedas,
-    billetes,
-    monedas,
-  };
-}
 
 export function CreacionPedido() {
   const navigate = useNavigate();
@@ -100,15 +15,24 @@ export function CreacionPedido() {
     eliminarDelCarrito,
     limpiarCarrito,
     total,
-  } = useCart();
+  } = useCarrito();
 
-  const [direccion1, setDireccion1] = useState("");
-  const [direccion2, setDireccion2] = useState("");
+  const usuario = obtenerSesion();
+
+  // Estados de datos del cliente
+  const [nombreCliente, setNombreCliente] = useState(
+    usuario ? `${usuario.nombres || ""} ${usuario.apellidos || ""}`.trim() : ""
+  );
+  const [telefonoCliente, setTelefonoCliente] = useState(usuario?.telefono || "");
+
+  // Estados de dirección de entrega
+  const [direccion1, setDireccion1] = useState(usuario?.direccion || "");
+  const [direccion2, setDireccion2] = useState(usuario?.depto || "");
+  const [comuna, setComuna] = useState(usuario?.comuna || "Puente Alto");
   const [observacion, setObservacion] = useState("");
+
+  const [usarDirCuenta, setUsarDirCuenta] = useState(() => Boolean(usuario?.direccion));
   const [metodoPago, setMetodoPago] = useState("");
-  const [subMetodoPago, setSubMetodoPago] = useState("efectivo");
-  const [montoPaga, setMontoPaga] = useState("");
-  const [usarDirCuenta, setUsarDirCuenta] = useState(true);
   const [alerta, setAlerta] = useState({ mensaje: "", tipo: "" });
 
   const handleCrearPedido = (e) => {
@@ -129,71 +53,119 @@ export function CreacionPedido() {
       return;
     }
 
-    if (metodoPago === "pagar_ahora") {
-      navigate("/pago", {
-        state: {
-          total,
-          carrito,
-          direccion: usarDirCuenta
-            ? "cuenta"
-            : { direccion1, direccion2, observacion },
-        },
-      });
-      return;
-    }
+    // Resolver datos del cliente y dirección
+    let nombreFinal = nombreCliente.trim();
+    let telefonoFinal = telefonoCliente.trim();
+    const rutFinal = usuario?.rut || "";
+    const emailFinal = usuario?.email || "";
+    let direccionFinal;
 
-    if (metodoPago === "efectivo") {
-      if (!subMetodoPago) {
+    if (usarDirCuenta && usuario?.direccion) {
+      nombreFinal = `${usuario.nombres || ""} ${usuario.apellidos || ""}`.trim() || "Cliente El Volcán";
+      telefonoFinal = usuario.telefono || telefonoCliente.trim() || "+56 9 8765 4321";
+      direccionFinal = `${usuario.direccion}${usuario.depto ? `, Depto ${usuario.depto}` : ""}, ${usuario.comuna || "Santiago"}`;
+    } else {
+      if (!nombreFinal) {
         setAlerta({
-          mensaje: "Por favor, selecciona si pagarás en efectivo o con tarjeta al repartidor.",
+          mensaje: "Por favor, ingresa el nombre de la persona que recibe el pedido.",
+          tipo: "error",
+        });
+        return;
+      }
+      if (!telefonoFinal) {
+        setAlerta({
+          mensaje: "Por favor, ingresa un teléfono de contacto para que el repartidor pueda coordinar la entrega.",
+          tipo: "error",
+        });
+        return;
+      }
+      if (!direccion1.trim()) {
+        setAlerta({
+          mensaje: "Por favor, ingresa la calle y número de entrega del gas.",
+          tipo: "error",
+        });
+        return;
+      }
+      if (!comuna.trim()) {
+        setAlerta({
+          mensaje: "Por favor, ingresa la comuna de entrega.",
           tipo: "error",
         });
         return;
       }
 
-      if (subMetodoPago === "efectivo") {
-        const montoIngresado = Number(montoPaga);
-        if (!montoPaga || isNaN(montoIngresado)) {
-          setAlerta({
-            mensaje: "Por favor, indica con cuánto dinero (billetes y/o monedas) pagarás para calcular el vuelto del repartidor.",
-            tipo: "error",
-          });
-          return;
-        }
+      direccionFinal = `${direccion1.trim()}${direccion2.trim() ? `, Depto ${direccion2.trim()}` : ""}, ${comuna.trim()}`;
+    }
 
-        if (montoIngresado < total) {
-          setAlerta({
-            mensaje: `El monto ingresado ($${montoIngresado.toLocaleString("es-CL")}) no puede ser menor al total del pedido ($${total.toLocaleString("es-CL")}).`,
-            tipo: "error",
-          });
-          return;
-        }
-      }
+    // FLUJO 1: PAGAR AHORA (En línea)
+    // Se genera el pedido en estado 'pendiente' de pago y se redirige a la pasarela
+    // Cuando el cliente completa el pago, se muestra 'pedido-creado' con estado 'pagado'
+    if (metodoPago === "pagar_ahora") {
+      const nuevoPedido = crearNuevoPedido({
+        cliente: nombreFinal,
+        telefono: telefonoFinal,
+        rut: rutFinal,
+        email: emailFinal,
+        direccion: direccionFinal,
+        direccionDetalle: {
+          direccion1: usarDirCuenta ? (usuario?.direccion || "") : direccion1.trim(),
+          direccion2: usarDirCuenta ? (usuario?.depto || "") : direccion2.trim(),
+          comuna: usarDirCuenta ? (usuario?.comuna || "") : comuna.trim(),
+          observacion: observacion.trim(),
+        },
+        items: carrito.map((item) => ({
+          producto: item.producto,
+          cantidad: item.cantidad,
+          subtotal: item.producto.precio * item.cantidad,
+        })),
+        total,
+        metodoPago: "pagar_ahora",
+        subMetodoPago: "webpay",
+        montoPaga: total,
+        vuelto: 0,
+        desgloseVuelto: null,
+        estadoPago: "pendiente",
+      });
 
-      const montoFinal = subMetodoPago === "efectivo" ? Number(montoPaga) : null;
-      const vuelto = montoFinal ? Math.max(0, montoFinal - total) : 0;
-      const desgloseVuelto = montoFinal ? calcularDesgloseVuelto(vuelto) : null;
+      navigate("/pago", {
+        state: { pedido: nuevoPedido },
+      });
+      return;
+    }
+
+    // FLUJO 2: PAGO AL REPARTIDOR (Efectivo o Tarjeta POS)
+    // Se genera el pedido inmediatamente y se muestra 'pedido-creado' con el estado 'pendiente' y comprobante para el repartidor
+    if (metodoPago === "efectivo") {
+      const nuevoPedido = crearNuevoPedido({
+        cliente: nombreFinal,
+        telefono: telefonoFinal,
+        rut: rutFinal,
+        email: emailFinal,
+        direccion: direccionFinal,
+        direccionDetalle: {
+          direccion1: usarDirCuenta ? (usuario?.direccion || "") : direccion1.trim(),
+          direccion2: usarDirCuenta ? (usuario?.depto || "") : direccion2.trim(),
+          comuna: usarDirCuenta ? (usuario?.comuna || "") : comuna.trim(),
+          observacion: observacion.trim(),
+        },
+        items: carrito.map((item) => ({
+          producto: item.producto,
+          cantidad: item.cantidad,
+          subtotal: item.producto.precio * item.cantidad,
+        })),
+        total,
+        metodoPago: "repartidor",
+        subMetodoPago: "efectivo",
+        montoPaga: total,
+        vuelto: 0,
+        desgloseVuelto: null,
+        estadoPago: "pendiente",
+      });
 
       limpiarCarrito();
-      setDireccion1("");
-      setDireccion2("");
-      setObservacion("");
 
       navigate("/pedido-creado", {
-        state: {
-          pago: "pendiente",
-          estadoPago: "pendiente",
-          metodoPago: "efectivo",
-          subMetodoPago,
-          montoPaga: montoFinal,
-          vuelto,
-          desgloseVuelto,
-          total,
-          carrito,
-          direccion: usarDirCuenta
-            ? "cuenta"
-            : { direccion1, direccion2, observacion },
-        },
+        state: { pedido: nuevoPedido },
       });
       return;
     }
@@ -204,8 +176,8 @@ export function CreacionPedido() {
       <div className="pedido-card">
         {/* Cabecera */}
         <div className="pedido-header">
-          <h1>Carrito</h1>
-          <p>Revisa tus productos y confirma tu pedido</p>
+          <h1>Crear Pedido de Gas</h1>
+          <p>Revisa tus productos y selecciona el flujo de entrega y pago</p>
         </div>
 
         {alerta.mensaje && (
@@ -244,21 +216,27 @@ export function CreacionPedido() {
                   <div key={item.producto.codigo} className="pedido-item">
                     {/* Miniatura del producto si está disponible */}
                     {item.producto.imagen && (
-                      <div style={{
-                        width: "48px",
-                        height: "48px",
-                        backgroundColor: "#ffffff",
-                        borderRadius: "6px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "2px",
-                        flexShrink: 0
-                      }}>
+                      <div
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          backgroundColor: "#ffffff",
+                          borderRadius: "6px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "2px",
+                          flexShrink: 0,
+                        }}
+                      >
                         <img
                           src={item.producto.imagen}
                           alt={item.producto.nombre}
-                          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            objectFit: "contain",
+                          }}
                         />
                       </div>
                     )}
@@ -268,7 +246,7 @@ export function CreacionPedido() {
                         {item.producto.nombre}
                       </strong>
                       <span className="pedido-item-precio">
-                        {"$" + (item.producto.precio * item.cantidad).toLocaleString("es-CL")}
+                        {formatearPesos(item.producto.precio * item.cantidad)}
                       </span>
                     </div>
 
@@ -278,6 +256,7 @@ export function CreacionPedido() {
                           type="button"
                           className="qty-btn"
                           onClick={() => disminuirCantidad(item.producto.codigo)}
+                          title="Disminuir"
                         >
                           -
                         </button>
@@ -286,6 +265,7 @@ export function CreacionPedido() {
                           type="button"
                           className="qty-btn"
                           onClick={() => aumentarCantidad(item.producto.codigo)}
+                          title="Aumentar"
                         >
                           +
                         </button>
@@ -295,6 +275,7 @@ export function CreacionPedido() {
                         type="button"
                         className="remove-item-btn"
                         onClick={() => eliminarDelCarrito(item.producto.codigo)}
+                        title="Quitar"
                       >
                         ✕
                       </button>
@@ -306,7 +287,7 @@ export function CreacionPedido() {
               <div className="pedido-total-row">
                 <span>Total a Pagar:</span>
                 <strong className="pedido-total-amount">
-                  {"$" + total.toLocaleString("es-CL")}
+                  {formatearPesos(total)}
                 </strong>
               </div>
 
@@ -325,217 +306,253 @@ export function CreacionPedido() {
         {carrito.length > 0 && (
           <div className="pedido-checkout-section">
             <h2 className="pedido-section-title">
-              Datos de Entrega y Pago
+              Datos de Despacho y Contacto
             </h2>
 
             <form onSubmit={handleCrearPedido} className="login-form">
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <input
-                  type="checkbox"
-                  id="usar-dir"
-                  checked={usarDirCuenta}
-                  onChange={(e) => setUsarDirCuenta(e.target.checked)}
-                  style={{ accentColor: "var(--color-accent)", cursor: "pointer" }}
-                />
-                <label htmlFor="usar-dir" style={{ fontSize: "0.88rem", fontWeight: "500", cursor: "pointer" }}>
-                  Utilizar mi dirección de cuenta
-                </label>
-              </div>
+              {/* Opción Dirección Registrada */}
+              {usuario && usuario.direccion ? (
+                <div className="cuenta-direccion-tarjeta">
+                  <div className="cuenta-direccion-header">
+                    <input
+                      type="checkbox"
+                      id="usar-dir"
+                      checked={usarDirCuenta}
+                      onChange={(e) => setUsarDirCuenta(e.target.checked)}
+                      className="cuenta-direccion-checkbox"
+                    />
+                    <label
+                      htmlFor="usar-dir"
+                      className="cuenta-direccion-label"
+                    >
+                      Usar mi dirección registrada de cuenta
+                    </label>
+                  </div>
 
-              {!usarDirCuenta && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px", paddingTop: "4px" }}>
+                  {usarDirCuenta && (
+                    <div className="cuenta-datos-panel">
+                      <div className="cuenta-datos-grid">
+                        <div className="cuenta-dato-item">
+                          <span className="cuenta-dato-titulo">Cliente</span>
+                          <span className="cuenta-dato-texto">
+                            {usuario.nombres} {usuario.apellidos || ""}
+                          </span>
+                        </div>
+                        <div className="cuenta-dato-item">
+                          <span className="cuenta-dato-titulo">Teléfono</span>
+                          <span className="cuenta-dato-texto">
+                            {usuario.telefono || "No especificado"}
+                          </span>
+                        </div>
+                        {usuario.rut && (
+                          <div className="cuenta-dato-item">
+                            <span className="cuenta-dato-titulo">RUT</span>
+                            <span className="cuenta-dato-texto">{usuario.rut}</span>
+                          </div>
+                        )}
+                        {usuario.email && (
+                          <div className="cuenta-dato-item">
+                            <span className="cuenta-dato-titulo">Correo Electrónico</span>
+                            <span className="cuenta-dato-texto">{usuario.email}</span>
+                          </div>
+                        )}
+                        <div className="cuenta-dato-item full">
+                          <span className="cuenta-dato-titulo">Dirección de Entrega</span>
+                          <span className="cuenta-dato-texto destacado">
+                            {usuario.direccion}
+                            {usuario.depto ? `, Depto/Block ${usuario.depto}` : ""}, {usuario.comuna || "Santiago"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="cuenta-aviso-invitado">
+                  ¿Tienes cuenta?{" "}
+                  <Link
+                    to="/login"
+                    className="cuenta-aviso-link"
+                  >
+                    Inicia sesión aquí
+                  </Link>{" "}
+                  para autocompletar tu dirección. O ingresa tus datos a continuación:
+                </div>
+              )}
+
+              {/* Formulario de Dirección Manual (cuando no usa la de la cuenta) */}
+              {(!usarDirCuenta || !usuario?.direccion) && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "14px",
+                    paddingTop: "4px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                    }}
+                  >
+                    <div className="form-group">
+                      <label htmlFor="nombre-cliente">Nombre y Apellido</label>
+                      <input
+                        type="text"
+                        id="nombre-cliente"
+                        placeholder="Ej: Juan Pérez"
+                        value={nombreCliente}
+                        onChange={(e) => setNombreCliente(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="telefono-cliente">Teléfono de Contacto</label>
+                      <input
+                        type="tel"
+                        id="telefono-cliente"
+                        placeholder="+56 9 1234 5678"
+                        value={telefonoCliente}
+                        onChange={(e) => setTelefonoCliente(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div className="form-group">
-                    <label htmlFor="direccion-1">Dirección 1</label>
+                    <label htmlFor="direccion-1">Calle y Número de Entrega</label>
                     <input
                       type="text"
                       id="direccion-1"
-                      placeholder="Calle y número"
+                      placeholder="Ej: Av. Concha y Toro 1420"
                       value={direccion1}
                       onChange={(e) => setDireccion1(e.target.value)}
                       required
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="direccion-2">Dirección 2 (opcional)</label>
-                    <input
-                      type="text"
-                      id="direccion-2"
-                      placeholder="Depto / block / piso"
-                      value={direccion2}
-                      onChange={(e) => setDireccion2(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="observacion-pedido">Observación de la dirección</label>
-                    <input
-                      type="text"
-                      id="observacion-pedido"
-                      placeholder="Ej: Cierre perimetral negro, esquina Pereira"
-                      value={observacion}
-                      onChange={(e) => setObservacion(e.target.value)}
-                    />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                    }}
+                  >
+                    <div className="form-group">
+                      <label htmlFor="direccion-2">Depto / Block (Opcional)</label>
+                      <input
+                        type="text"
+                        id="direccion-2"
+                        placeholder="Ej: Depto 302, Torre B"
+                        value={direccion2}
+                        onChange={(e) => setDireccion2(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="comuna-despacho">Comuna / Ciudad</label>
+                      <input
+                        type="text"
+                        id="comuna-despacho"
+                        placeholder="Ej: Puente Alto, La Florida"
+                        value={comuna}
+                        onChange={(e) => setComuna(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* Observación para el repartidor (disponible siempre) */}
+              <div className="form-group" style={{ marginTop: "10px" }}>
+                <label htmlFor="observacion-pedido">
+                  Indicaciones para el repartidor (Opcional)
+                </label>
+                <input
+                  type="text"
+                  id="observacion-pedido"
+                  placeholder="Ej: Portón negro, tocar timbre blanco, dejar en conserjería"
+                  value={observacion}
+                  onChange={(e) => setObservacion(e.target.value)}
+                />
+              </div>
+
               {/* Selector de Pago */}
-              <div style={{ marginTop: "8px" }}>
-                <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "rgba(255, 255, 255, 0.9)" }}>
-                  Método de Pago
+              <div style={{ marginTop: "18px" }}>
+                <label
+                  style={{
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    color: "rgba(255, 255, 255, 0.95)",
+                    display: "block",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Elige cómo deseas pagar:
                 </label>
                 <div className="payment-methods-grid">
-                  <label className={"payment-radio-label" + (metodoPago === "efectivo" ? " selected" : "")}>
+                  <label
+                    className={
+                      "payment-radio-label" +
+                      (metodoPago === "efectivo" ? " selected" : "")
+                    }
+                  >
                     <input
-                      type="checkbox"
+                      type="radio"
                       name="metodoPago"
                       value="efectivo"
                       checked={metodoPago === "efectivo"}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setMetodoPago("efectivo");
-                          if (!subMetodoPago) setSubMetodoPago("efectivo");
-                        } else {
-                          setMetodoPago("");
-                        }
-                      }}
+                      onChange={() => setMetodoPago("efectivo")}
                     />
-                    <span>Pago al repartidor</span>
+                    <div>
+                      <strong>Pago al Repartidor</strong>
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "0.74rem",
+                          color: "rgba(255, 255, 255, 0.7)",
+                          marginTop: "2px",
+                        }}
+                      >
+                        Pagas en efectivo o tarjeta al recibir tus cilindros
+                      </span>
+                    </div>
                   </label>
 
-                  <label className={"payment-radio-label" + (metodoPago === "pagar_ahora" ? " selected" : "")}>
+                  <label
+                    className={
+                      "payment-radio-label" +
+                      (metodoPago === "pagar_ahora" ? " selected" : "")
+                    }
+                  >
                     <input
-                      type="checkbox"
+                      type="radio"
                       name="metodoPago"
                       value="pagar_ahora"
                       checked={metodoPago === "pagar_ahora"}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setMetodoPago("pagar_ahora");
-                        } else {
-                          setMetodoPago("");
-                        }
-                      }}
+                      onChange={() => setMetodoPago("pagar_ahora")}
                     />
-                    <span>Pagar Ahora</span>
+                    <div>
+                      <strong>Pagar Ahora (En Línea)</strong>
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "0.74rem",
+                          color: "rgba(255, 255, 255, 0.7)",
+                          marginTop: "2px",
+                        }}
+                      >
+                        Pagas con Webpay, Débito o Crédito sin contacto
+                      </span>
+                    </div>
                   </label>
                 </div>
-
-                {/* Sub-opciones de Pago al Repartidor */}
-                {metodoPago === "efectivo" && (
-                  <div className="pago-repartidor-container">
-                    <p className="pago-repartidor-titulo">Pago al repartidor (Selecciona medio de pago):</p>
-                    <div className="payment-submethods-grid">
-                      <label className={"payment-radio-label submethod" + (subMetodoPago === "efectivo" ? " selected" : "")}>
-                        <input
-                          type="checkbox"
-                          name="subMetodoPago"
-                          value="efectivo"
-                          checked={subMetodoPago === "efectivo"}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSubMetodoPago("efectivo");
-                            } else if (subMetodoPago === "efectivo") {
-                              setSubMetodoPago("");
-                            }
-                          }}
-                        />
-                        <span>Efectivo</span>
-                      </label>
-
-                      <label className={"payment-radio-label submethod" + (subMetodoPago === "tarjeta" ? " selected" : "")}>
-                        <input
-                          type="checkbox"
-                          name="subMetodoPago"
-                          value="tarjeta"
-                          checked={subMetodoPago === "tarjeta"}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSubMetodoPago("tarjeta");
-                            } else if (subMetodoPago === "tarjeta") {
-                              setSubMetodoPago("");
-                            }
-                          }}
-                        />
-                        <span>Tarjeta</span>
-                      </label>
-                    </div>
-
-                    {/* Manejo de vuelto para Pago en Efectivo al Repartidor */}
-                    {subMetodoPago === "efectivo" && (
-                      <div className="vuelto-efectivo-container">
-                        <label className="vuelto-label" htmlFor="monto-efectivo">
-                          ¿Con cuánto pagarás? (Billetes y/o Monedas)
-                        </label>
-                        <p className="vuelto-help">
-                          Indica el monto con el que pagarás para que el repartidor lleve tu vuelto preparado (incluye monedas si corresponde):
-                        </p>
-
-                        <div className="billetes-sugeridos-grid">
-                          <button
-                            type="button"
-                            className={"btn-billete" + (montoPaga === String(total) ? " active" : "")}
-                            onClick={() => setMontoPaga(String(total))}
-                          >
-                            {"Exacto ($" + total.toLocaleString("es-CL") + ")"}
-                          </button>
-                          {obtenerSugerenciasMonto(total).map((montoSugerido) => (
-                            <button
-                              key={montoSugerido}
-                              type="button"
-                              className={"btn-billete" + (montoPaga === String(montoSugerido) ? " active" : "")}
-                              onClick={() => setMontoPaga(String(montoSugerido))}
-                            >
-                              {"$" + montoSugerido.toLocaleString("es-CL")}
-                            </button>
-                          ))}
-                        </div>
-
-                        <div className="form-group" style={{ marginTop: "10px" }}>
-                          <label htmlFor="monto-efectivo" style={{ fontSize: "0.8rem", color: "rgba(255, 255, 255, 0.85)" }}>
-                            O escribe otro monto en efectivo ($):
-                          </label>
-                          <input
-                            type="number"
-                            id="monto-efectivo"
-                            placeholder={"Ej: 3000, 5000, 10000 (mínimo $" + total.toLocaleString("es-CL") + ")"}
-                            min={total}
-                            step="10"
-                            value={montoPaga}
-                            onChange={(e) => setMontoPaga(e.target.value)}
-                          />
-                        </div>
-
-                        {/* Detalle del vuelto calculado */}
-                        {montoPaga !== "" && !isNaN(Number(montoPaga)) && (
-                          <div className="vuelto-resumen">
-                            {Number(montoPaga) < total ? (
-                              <span className="vuelto-alerta-insuficiente">
-                                ⚠️ El monto ingresado (${Number(montoPaga).toLocaleString("es-CL")}) es menor al total a pagar (${total.toLocaleString("es-CL")}).
-                              </span>
-                            ) : Number(montoPaga) === total ? (
-                              <span className="vuelto-alerta-exacto">
-                                ✓ Pago exacto: el repartidor no necesita llevar vuelto.
-                              </span>
-                            ) : (
-                              <div className="vuelto-info">
-                                <span>Vuelto que debe entregar el repartidor:</span>
-                                <strong className="vuelto-monto">
-                                  {"$" + (Number(montoPaga) - total).toLocaleString("es-CL")}
-                                </strong>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
 
               <button type="submit" className="btn-confirmar-pedido">
-                {"Confirmar y Crear Pedido ($" + total.toLocaleString("es-CL") + ")"}
+                {"Confirmar y Crear Pedido (" + formatearPesos(total) + ")"}
               </button>
             </form>
           </div>
@@ -544,5 +561,3 @@ export function CreacionPedido() {
     </main>
   );
 }
-
-export { CreacionPedido as Pedido };

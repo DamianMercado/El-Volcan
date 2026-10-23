@@ -112,3 +112,4 @@ export const productos = [
     imagen: "/src/assets/img/productos/RG003.webp"
   }
 ];
+

@@ -1,9 +1,9 @@
-import { productos } from "../../../data/productos.js";
-import { useCart } from "../../../contexts/CartContext.jsx";
+import { productos } from "../../data/productos.js";
+import { useCarrito } from "../../../contexts/Carrito.jsx";
 import "../../css/productos.css";
 
 export function Productos() {
-  const { agregarAlCarrito } = useCart();
+  const { agregarAlCarrito } = useCarrito();
 
   return (
     <main className="productos-container">

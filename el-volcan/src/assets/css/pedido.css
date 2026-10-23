@@ -199,6 +199,106 @@
   margin-top: 24px;
 }
 
+/* Tarjeta de Dirección de Cuenta Registrada */
+.cuenta-direccion-tarjeta {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  transition: border-color var(--transition);
+}
+
+.cuenta-direccion-tarjeta:hover {
+  border-color: rgba(255, 69, 0, 0.4);
+}
+
+.cuenta-direccion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cuenta-direccion-checkbox {
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.cuenta-direccion-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--color-white);
+  user-select: none;
+}
+
+.cuenta-datos-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.2s ease;
+}
+
+.cuenta-datos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 18px;
+  font-size: 0.84rem;
+}
+
+.cuenta-dato-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.cuenta-dato-item.full {
+  grid-column: 1 / -1;
+}
+
+.cuenta-dato-titulo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.82;
+}
+
+.cuenta-dato-texto {
+  color: var(--color-white);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cuenta-dato-texto.destacado {
+  color: var(--color-white);
+  font-weight: 700;
+}
+
+.cuenta-aviso-invitado {
+  margin-bottom: 14px;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.4;
+}
+
+.cuenta-aviso-link {
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: underline;
+  transition: opacity var(--transition);
+}
+
+.cuenta-aviso-link:hover {
+  opacity: 0.85;
+}
+
 .payment-methods-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -477,6 +577,11 @@
 
   .pedido-card {
     padding: 20px 14px;
+  }
+
+  .cuenta-datos-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .payment-methods-grid {
