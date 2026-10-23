@@ -1,0 +1,223 @@
+/* ========================================================
+   ESTILOS PARA LA VISTA DE REGISTRO
+   Clases en español y con nombres completos separados por guion
+   ======================================================== */
+
+.contenedor-registro {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.tarjeta-registro {
+  width: 100%;
+  max-width: 820px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 40px 36px;
+  color: var(--color-white);
+  animation: fadeIn 0.3s ease;
+}
+
+.cabecera-tarjeta-registro {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.cabecera-tarjeta-registro h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.cabecera-tarjeta-registro p {
+  font-size: 0.95rem;
+  color: var(--color-secondary);
+}
+
+.formulario-registro {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Subtítulos de sección dentro del formulario */
+.titulo-seccion-registro {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  border-bottom: 1px solid rgba(0, 168, 232, 0.25);
+  padding-bottom: 6px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+/* Filas del formulario */
+.fila-formulario {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.fila-dos-columnas > .grupo-campo-registro {
+  flex: 1;
+  min-width: 0;
+}
+
+.fila-ancho-completo > .grupo-campo-registro {
+  flex: 1;
+  width: 100%;
+}
+
+/* Distribución desigual: Dirección 70% y Depto 30% */
+.columna-direccion-principal {
+  flex: 2.2;
+  min-width: 0;
+}
+
+.columna-direccion-secundaria {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Grupos de campos individuales */
+.grupo-campo-registro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etiqueta-campo-registro {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.entrada-campo-registro {
+  width: 100%;
+  padding: 11px 14px;
+  background-color: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(0, 168, 232, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  font-size: 0.95rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  font-family: inherit;
+}
+
+.entrada-campo-registro:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 2px rgba(0, 168, 232, 0.2);
+}
+
+.entrada-campo-registro::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+/* Botón principal de registro */
+.boton-registro-principal {
+  margin-top: 12px;
+  width: 50%;
+  max-width: 320px;
+  align-self: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 13px 20px;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.boton-registro-principal:hover:not(:disabled) {
+  background-color: #e03d00;
+  transform: translateY(-1px);
+}
+
+.boton-registro-principal:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Pie de tarjeta con enlace para iniciar sesión */
+.pie-tarjeta-registro {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.texto-iniciar-sesion {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.enlace-iniciar-sesion {
+  color: var(--color-secondary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 6px;
+  transition: color var(--transition), text-decoration var(--transition);
+}
+
+.enlace-iniciar-sesion:hover {
+  text-decoration: underline;
+  color: #80d8ff;
+}
+
+/* Cajas de alerta */
+.caja-alerta {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+.caja-alerta-error {
+  background-color: rgba(255, 69, 0, 0.15);
+  border: 1px solid var(--color-accent);
+  color: #ff9e80;
+}
+
+.caja-alerta-exito {
+  background-color: rgba(0, 168, 232, 0.15);
+  border: 1px solid var(--color-secondary);
+  color: #80d8ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fila-formulario {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .tarjeta-registro {
+    padding: 32px 20px;
+  }
+
+  .boton-registro-principal {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .tarjeta-registro {
+    padding: 24px 16px;
+  }
+}

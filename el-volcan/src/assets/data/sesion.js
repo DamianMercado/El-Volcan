@@ -3,8 +3,8 @@
 const CLAVE = "usuario_sesion";
 
 export function guardarSesion(usuario) {
-  const { id, nombres, email, rol } = usuario;
-  localStorage.setItem(CLAVE, JSON.stringify({ id, nombres, email, rol }));
+  const { contraseña, ...datosPublicos } = usuario;
+  localStorage.setItem(CLAVE, JSON.stringify(datosPublicos));
 }
 
 // Devuelve el usuario conectado, o null si no hay sesión

@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { users } from "../../data/users.js";
+import { buscarUsuarioPorCredenciales } from "../../data/users.js";
 import { guardarSesion, rutaSegunRol } from "../../data/sesion.js";
 
-
 export function Login() {
-  const navigate = useNavigate(); // 2. Instanciar navigate
+  const navigate = useNavigate();
   // Cargar email recordado al montar el componente
   const [email, setEmail] = useState(() => localStorage.getItem("recordar_email") || "");
   const [password, setPassword] = useState("");
@@ -24,9 +23,7 @@ export function Login() {
     event.preventDefault();
     limpiarAlerta();
 
-    const usuarioEncontrado = users.find(
-      (u) => u.email === email && u.contraseña === password
-    );
+    const usuarioEncontrado = buscarUsuarioPorCredenciales(email, password);
 
     if (usuarioEncontrado) {
       if (recordar) {
@@ -38,8 +35,8 @@ export function Login() {
       mostrarAlerta(`¡Bienvenido, ${usuarioEncontrado.nombres}!`, "success");
 
       setTimeout(() => {
-        navigate(rutaSegunRol(usuarioEncontrado.rol)); // 3. Redirigir según el rol
-      }, 1500); // Redirigir después de 1.5 segundos
+        navigate(rutaSegunRol(usuarioEncontrado.rol));
+      }, 1500);
 
     } else {
       mostrarAlerta("Correo o contraseña incorrectos", "error");
