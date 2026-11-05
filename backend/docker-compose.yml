@@ -1,0 +1,314 @@
+services:
+  # ==================== BASES DE DATOS MYSQL ====================
+
+  mysql-usuario:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-usuario
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_usuario
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_usuario_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  mysql-auth:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-auth
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_auth
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  mysql-inventario:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-inventario
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_inventario
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_inventario_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  mysql-catalogo:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-catalogo
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_catalogo
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_catalogo_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  mysql-venta:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-venta
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_venta
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql_venta_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  mysql-pago:
+    image: mysql:8.0
+    container_name: elvolcan-mysql-pago
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms_pago
+    ports:
+      - "3312:3306"
+    volumes:
+      - mysql_pago_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elvolcan-net
+
+  # ==================== EUREKA SERVER ====================
+
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: elvolcan-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  # ==================== API GATEWAY ====================
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: elvolcan-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  # ==================== MICROSERVICIOS ====================
+
+  ms-usuario:
+    build:
+      context: ./ms-usuario
+      dockerfile: Dockerfile
+    container_name: elvolcan-usuario
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-usuario:3306/ms_usuario
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-usuario:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  ms-auth:
+    build:
+      context: ./ms-auth
+      dockerfile: Dockerfile
+    container_name: elvolcan-auth
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-auth:3306/ms_auth
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  ms-inventario:
+    build:
+      context: ./ms-inventario
+      dockerfile: Dockerfile
+    container_name: elvolcan-inventario
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-inventario:3306/ms_inventario
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-inventario:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  ms-catalogo:
+    build:
+      context: ./ms-catalogo
+      dockerfile: Dockerfile
+    container_name: elvolcan-catalogo
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-catalogo:3306/ms_catalogo
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-catalogo:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
+      ms-inventario:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  ms-venta:
+    build:
+      context: ./ms-venta
+      dockerfile: Dockerfile
+    container_name: elvolcan-venta
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-venta:3306/ms_venta
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-venta:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
+      ms-catalogo:
+        condition: service_started
+      ms-inventario:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+  ms-pago:
+    build:
+      context: ./ms-pago
+      dockerfile: Dockerfile
+    container_name: elvolcan-pago
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-pago:3306/ms_pago
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+    depends_on:
+      mysql-pago:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
+      ms-venta:
+        condition: service_started
+    networks:
+      - elvolcan-net
+    restart: unless-stopped
+
+networks:
+  elvolcan-net:
+    driver: bridge
+
+volumes:
+  mysql_usuario_data:
+  mysql_auth_data:
+  mysql_inventario_data:
+  mysql_catalogo_data:
+  mysql_venta_data:
+  mysql_pago_data:
