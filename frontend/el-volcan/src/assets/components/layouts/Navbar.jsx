@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCarrito } from "../../../contexts/Carrito.jsx";
 import { obtenerSesion, cerrarSesion } from "../../data/sesion.js";
-import logoVolcan from "../../img/elVolcan.svg";
+const logoVolcan = "https://res.cloudinary.com/hsr9lgyw/image/upload/elVolcan.svg";
 import "../../css/navbar.css";
 
 export const Navbar = () => {

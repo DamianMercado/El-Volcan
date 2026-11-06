@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../../css/home.css";
-import bannerDespacho from "../../img/home/banner-despacho.jpg";
+const bannerDespacho = "https://res.cloudinary.com/hsr9lgyw/image/upload/banner-despacho.jpg";
 
 export function Home() {
   const navigate = useNavigate();
