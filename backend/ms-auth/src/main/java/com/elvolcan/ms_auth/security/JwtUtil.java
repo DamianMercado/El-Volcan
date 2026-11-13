@@ -31,6 +31,10 @@ public class JwtUtil {
         claims.put("nombreUsuario", nombreUsuario);
         claims.put("email", email);
         claims.put("rol", rol);
+        // Alias compatibles con la estructura de proyecto-crud (UsuarioDesdeToken)
+        claims.put("nombre", nombreUsuario);
+        claims.put("perfil", rol);
+        claims.put("correo", email);
 
         Date ahora = new Date();
         Date expiracion = new Date(ahora.getTime() + expirationMs);

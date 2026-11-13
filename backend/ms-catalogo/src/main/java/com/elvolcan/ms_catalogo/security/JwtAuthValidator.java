@@ -35,13 +35,17 @@ public class JwtAuthValidator {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    public Claims extraerClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
     public boolean validarFirmaJwt(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = extraerClaims(token);
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
@@ -52,10 +56,38 @@ public class JwtAuthValidator {
         if (authHeader == null || authHeader.isBlank()) {
             return;
         }
-        String token = authHeader.replace("Bearer ", "").trim();
-        if (token.chars().filter(ch -> ch == '.').count() == 2 && !validarFirmaJwt(token)) {
-            throw new SecurityException("Firma JWT inválida o token expirado");
+        validarTokenInterno(authHeader, false);
+    }
+
+    public void exigirTokenAdmin(String authHeader) {
+        if (authHeader == null || authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
+            throw new SecurityException("No autorizado: se requiere token JWT Bearer de administrador");
         }
+        validarTokenInterno(authHeader, true);
+    }
+
+    private void validarTokenInterno(String authHeader, boolean requiereAdmin) {
+        String token = authHeader.replace("Bearer ", "").trim();
+        if (token.isBlank()) {
+            throw new SecurityException("Token JWT vacío");
+        }
+
+        if (token.chars().filter(ch -> ch == '.').count() == 2) {
+            if (!validarFirmaJwt(token)) {
+                throw new SecurityException("Firma JWT inválida o token expirado");
+            }
+            if (requiereAdmin) {
+                Claims claims = extraerClaims(token);
+                String rol = claims.get("rol", String.class);
+                if (rol == null) {
+                    rol = claims.get("perfil", String.class);
+                }
+                if (rol == null || !rol.equalsIgnoreCase("ADMIN")) {
+                    throw new SecurityException("Acceso denegado: se requiere rol ADMIN");
+                }
+            }
+        }
+
         try {
             Map<String, Object> validacion = authClient.validarToken(token);
             if (validacion == null || !Boolean.TRUE.equals(validacion.get("valido"))) {
@@ -64,7 +96,7 @@ public class JwtAuthValidator {
         } catch (SecurityException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Verificación local JWT aplicada (ms-auth no disponible): {}", e.getMessage());
+            log.warn("Verificación criptográfica local JWT aplicada (ms-auth no disponible): {}", e.getMessage());
         }
     }
 

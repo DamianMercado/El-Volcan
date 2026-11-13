@@ -155,6 +155,17 @@ public class UsuarioService {
         return usuarioMapper.toResponse(usuario);
     }
 
+    @Transactional
+    public UsuarioResponse actualizarPasswordPorEmail(CredencialesRequest request) {
+        log.info("Restableciendo contraseña para email: {}", request.getEmail());
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail().trim().toLowerCase())
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No existe una cuenta registrada con el correo: " + request.getEmail()));
+
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        Usuario actualizado = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(actualizado);
+    }
+
     @Transactional(readOnly = true)
     public boolean validarCliente(Long id) {
         try {

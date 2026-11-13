@@ -27,7 +27,7 @@ spring:
           - id: ms-catalogo
             uri: lb://ms-catalogo
             predicates:
-              - Path=/api/v1/catalogo/**
+              - Path=/api/v1/catalogo/**,/api/v1/productos/**
 
           - id: ms-venta
             uri: lb://ms-venta
@@ -38,6 +38,10 @@ spring:
             uri: lb://ms-pago
             predicates:
               - Path=/api/v1/pagos/**
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,*}
 
 eureka:
   client:
@@ -61,7 +65,7 @@ management:
 logging:
   level:
     root: INFO
-    org.springframework.cloud.gateway: DEBUG
-    com.elvolcan.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    com.elvolcan.gateway: INFO
 
 spring.cloud.compatibility-verifier.enabled: false

@@ -35,6 +35,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/recuperar-clave")
+    @Operation(summary = "Restablecer contraseña por correo electrónico")
+    public ResponseEntity<AuthResponse> recuperarClave(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.recuperarClave(request));
+    }
+
     @PostMapping("/registro")
     @Operation(summary = "Registrar un nuevo usuario y generar sesión autenticada")
     @ApiResponses(value = {

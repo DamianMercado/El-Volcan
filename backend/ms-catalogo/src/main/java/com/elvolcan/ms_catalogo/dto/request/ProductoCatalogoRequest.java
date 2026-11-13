@@ -14,10 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Datos para crear o actualizar un producto en el catálogo")
+@Schema(description = "Datos para crear o actualizar un producto en el catálogo e inventario")
 public class ProductoCatalogoRequest {
 
-    @NotBlank(message = "El código es obligatorio")
     @Schema(example = "CL001")
     private String codigo;
 
@@ -33,12 +32,19 @@ public class ProductoCatalogoRequest {
     @Schema(example = "12990")
     private Double precio;
 
-    @NotBlank(message = "La categoría es obligatoria")
+    @Schema(example = "60")
+    @Min(value = 0, message = "El stock no puede ser negativo")
+    private Integer stock;
+
+    @Schema(example = "20")
+    @Min(value = 0, message = "El stock mínimo no puede ser negativo")
+    private Integer minimo;
+
     @Schema(example = "Cilindros")
     private String categoria;
 
     @NotBlank(message = "La ruta o URL de la imagen es obligatoria")
-    @Schema(example = "/src/assets/img/productos/CL001.webp")
+    @Schema(example = "https://res.cloudinary.com/hsr9lgyw/image/upload/v1793984850/CL001.webp")
     private String imagen;
 
     @Schema(example = "ACTIVO")

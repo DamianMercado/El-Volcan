@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
         error.put("status", HttpStatus.NOT_FOUND.value());
         error.put("error", "Sesión no encontrada");
         error.put("message", ex.getMessage());
+        error.put("mensaje", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
@@ -27,10 +28,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("status", HttpStatus.UNAUTHORIZED.value());
         error.put("error", "Error de autenticación");
         error.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        error.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,6 +45,7 @@ public class GlobalExceptionHandler {
         error.put("status", HttpStatus.BAD_REQUEST.value());
         error.put("error", "Datos inválidos");
         error.put("message", mensaje);
+        error.put("mensaje", mensaje);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
@@ -53,6 +56,7 @@ public class GlobalExceptionHandler {
         error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.put("error", "Error interno del servidor");
         error.put("message", ex.getMessage());
+        error.put("mensaje", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

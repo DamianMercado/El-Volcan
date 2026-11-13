@@ -15,6 +15,9 @@ public interface UsuarioClient {
     @PostMapping("/api/v1/usuarios/validar-credenciales")
     UsuarioExternoResponse validarCredenciales(@RequestBody LoginRequest request);
 
+    @org.springframework.web.bind.annotation.PutMapping("/api/v1/usuarios/recuperar-clave")
+    UsuarioExternoResponse recuperarClave(@RequestBody LoginRequest request);
+
     @PostMapping("/api/v1/usuarios")
     UsuarioExternoResponse registrarUsuario(@RequestBody RegistroAuthRequest request);
 

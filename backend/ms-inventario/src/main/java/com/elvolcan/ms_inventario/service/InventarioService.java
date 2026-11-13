@@ -116,6 +116,27 @@ public class InventarioService {
     }
 
     @Transactional
+    public InventarioResponse sincronizarStockProducto(String codigoProducto, String nombreProducto, Integer stockActual, Integer stockMinimo) {
+        String codigoNormalizado = codigoProducto.toUpperCase().trim();
+        int stockFinal = stockActual != null ? Math.max(0, stockActual) : 0;
+        int minimoFinal = stockMinimo != null ? Math.max(0, stockMinimo) : Math.max(10, stockFinal / 3);
+
+        Inventario inventario = inventarioRepository.findByCodigoProductoIgnoreCase(codigoNormalizado)
+                .orElseGet(() -> Inventario.builder()
+                        .codigoProducto(codigoNormalizado)
+                        .ubicacionBodega("Bodega Central")
+                        .build());
+
+        inventario.setNombreProducto(nombreProducto != null && !nombreProducto.isBlank() ? nombreProducto : codigoNormalizado);
+        inventario.setStockActual(stockFinal);
+        inventario.setStockMinimo(minimoFinal);
+        inventario.setEstadoStock(EstadoStock.calcularEstado(stockFinal, minimoFinal));
+        inventario.setFechaActualizacion(LocalDateTime.now());
+
+        return inventarioMapper.toResponse(inventarioRepository.save(inventario));
+    }
+
+    @Transactional
     public MovimientoInventarioResponse registrarMovimiento(MovimientoInventarioRequest request) {
         log.info("Registrando movimiento {} de {} unidades para producto {}",
                 request.getTipoMovimiento(), request.getCantidad(), request.getCodigoProducto());

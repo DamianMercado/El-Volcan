@@ -50,6 +50,19 @@ public class AuthService {
     }
 
     @Transactional
+    public AuthResponse recuperarClave(LoginRequest request) {
+        log.info("Recuperando/actualizando contraseña en ms-auth para: {}", request.getEmail());
+        UsuarioExternoResponse usuario;
+        try {
+            usuario = usuarioClient.recuperarClave(request);
+        } catch (Exception e) {
+            log.error("Error al restablecer contraseña en ms-usuario: {}", e.getMessage());
+            throw new IllegalArgumentException("No se encontró una cuenta con el correo indicado o no se pudo actualizar la clave");
+        }
+        return generarSesionJwtParaUsuario(usuario);
+    }
+
+    @Transactional
     public AuthResponse registrarYAutenticar(RegistroAuthRequest request) {
         log.info("Registrando nuevo usuario desde ms-auth: {}", request.getEmail());
 

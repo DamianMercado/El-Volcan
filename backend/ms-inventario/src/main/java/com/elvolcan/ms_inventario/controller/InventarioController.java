@@ -49,6 +49,18 @@ public class InventarioController {
         return ResponseEntity.ok(inventarioService.obtenerPorCodigoProducto(codigoProducto));
     }
 
+    @PutMapping("/sincronizar/{codigoProducto}")
+    @Operation(summary = "Crear o actualizar stock de un producto desde ms-catalogo")
+    public ResponseEntity<InventarioResponse> sincronizarStockProducto(
+            @PathVariable String codigoProducto,
+            @RequestParam("nombreProducto") String nombreProducto,
+            @RequestParam("stockActual") Integer stockActual,
+            @RequestParam(value = "stockMinimo", required = false) Integer stockMinimo,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        inventarioService.autenticarConMsAuth(authHeader);
+        return ResponseEntity.ok(inventarioService.sincronizarStockProducto(codigoProducto, nombreProducto, stockActual, stockMinimo));
+    }
+
     @PostMapping
     @Operation(summary = "Crear registro de inventario para un producto")
     public ResponseEntity<InventarioResponse> crear(

@@ -100,6 +100,12 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.validarCredenciales(request));
     }
 
+    @PutMapping("/recuperar-clave")
+    @Operation(summary = "Restablecer contraseña de un usuario por correo electrónico")
+    public ResponseEntity<UsuarioResponse> recuperarClave(@Valid @RequestBody CredencialesRequest request) {
+        return ResponseEntity.ok(usuarioService.actualizarPasswordPorEmail(request));
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar usuario")
     public ResponseEntity<UsuarioResponse> actualizar(
