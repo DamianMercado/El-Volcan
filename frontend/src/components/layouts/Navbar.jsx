@@ -1,0 +1,178 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useCarrito } from '../../contexts/Carrito.jsx'
+import { obtenerSesion, cerrarSesion } from '../../assets/data/sesion.js'
+import { BotonCarritoNav } from './BotonCarritoNav.jsx'
+import { AccionesUsuarioNav } from './AccionesUsuarioNav.jsx'
+
+const logoVolcan =
+  'https://res.cloudinary.com/hsr9lgyw/image/upload/elVolcan.svg'
+
+export const Navbar = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { carrito, total } = useCarrito()
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false)
+  const [usuario, setUsuario] = useState(() => obtenerSesion())
+
+  useEffect(() => {
+    const sincronizarSesion = () => {
+      setUsuario(obtenerSesion())
+    }
+    sincronizarSesion()
+
+    window.addEventListener('sesion_cambiada', sincronizarSesion)
+    window.addEventListener('storage', sincronizarSesion)
+    return () => {
+      window.removeEventListener('sesion_cambiada', sincronizarSesion)
+      window.removeEventListener('storage', sincronizarSesion)
+    }
+  }, [location.pathname])
+
+  const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
+
+  const irA = (ruta) => {
+    setMenuMovilAbierto(false)
+    navigate(ruta)
+  }
+
+  const cerrarSesionActiva = () => {
+    cerrarSesion()
+    setUsuario(null)
+    setMenuMovilAbierto(false)
+    navigate('/')
+  }
+
+  return (
+    <nav className="sticky top-0 z-50 bg-[#0A2540] shadow-md print:hidden">
+      <div className="relative flex h-16 w-full items-center justify-between px-5">
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault()
+            irA('/')
+          }}
+          className="flex shrink-0 cursor-pointer items-center gap-3 text-white no-underline select-none"
+        >
+          <img
+            src={logoVolcan}
+            alt="El Volcán Logo"
+            className="h-11 w-11 shrink-0 object-contain brightness-0 invert"
+          />
+          <span className="text-xl font-bold tracking-wide text-white">
+            El Volcán
+          </span>
+          <span className="hidden border-l border-white/20 pl-2.5 text-xs italic text-[#00A8E8] lg:inline">
+            Gas a la puerta de tu hogar.
+          </span>
+        </a>
+
+        {/* Grupo derecho Escritorio */}
+        <div className="hidden items-center gap-5 md:flex">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => irA('/')}
+              className="cursor-pointer rounded-lg px-3.5 py-2 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Inicio
+            </button>
+            <button
+              type="button"
+              onClick={() => irA('/productos')}
+              className="cursor-pointer rounded-lg px-3.5 py-2 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Productos
+            </button>
+
+            <BotonCarritoNav
+              cantidadTotal={cantidadTotal}
+              total={total}
+              onClick={() => irA('/creacion-pedido')}
+            />
+          </div>
+
+          <AccionesUsuarioNav
+            usuario={usuario}
+            alIrA={irA}
+            alCerrarSesion={cerrarSesionActiva}
+          />
+        </div>
+
+        {/* Controles para Móvil */}
+        <div className="flex items-center gap-3 md:hidden">
+          <BotonCarritoNav
+            cantidadTotal={cantidadTotal}
+            total={total}
+            onClick={() => irA('/creacion-pedido')}
+            esMovil
+          />
+
+          <button
+            type="button"
+            className="flex h-5 w-7 cursor-pointer flex-col justify-between bg-transparent p-0"
+            onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}
+            aria-label="Menú de navegación"
+          >
+            <span
+              className={`block h-0.5 w-full rounded bg-white transition ${
+                menuMovilAbierto ? 'translate-y-2 rotate-45' : ''
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-full rounded bg-white transition ${
+                menuMovilAbierto ? 'opacity-0' : ''
+              }`}
+            />
+            <span
+              className={`block h-0.5 w-full rounded bg-white transition ${
+                menuMovilAbierto ? '-translate-y-2 -rotate-45' : ''
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Menú Móvil Desplegable */}
+        {menuMovilAbierto && (
+          <div className="absolute top-16 left-0 z-50 flex w-full flex-col gap-2 border-t border-white/10 bg-[#0A2540] p-5 shadow-2xl md:hidden">
+            <button
+              type="button"
+              onClick={() => irA('/')}
+              className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Inicio
+            </button>
+            <button
+              type="button"
+              onClick={() => irA('/productos')}
+              className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Productos
+            </button>
+            <button
+              type="button"
+              onClick={() => irA('/creacion-pedido')}
+              className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              <span>Resumen de Pedido</span>
+              {cantidadTotal > 0 && (
+                <span className="ml-2 text-xs font-bold text-[#00A8E8]">
+                  {`(${cantidadTotal}) $${total.toLocaleString('es-CL')}`}
+                </span>
+              )}
+            </button>
+
+            <AccionesUsuarioNav
+              usuario={usuario}
+              alIrA={irA}
+              alCerrarSesion={cerrarSesionActiva}
+              esMovil
+            />
+          </div>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+export default Navbar

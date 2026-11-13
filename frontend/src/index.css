@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --color-volcan-primary: #0A2540;
+  --color-volcan-accent: #FF4500;
+  --color-volcan-accent-hover: #E03D00;
+  --color-volcan-secondary: #00A8E8;
+  --color-volcan-bg: #F7F9FC;
+  --color-volcan-text: #1A1D20;
+  --color-admin-blue: #2358b9;
+  --color-admin-blue-hover: #1b4794;
+  --color-status-ok: #1bd124;
+  --color-status-warn: #f9a825;
+  --color-status-crit: #d84315;
+}
+
+@layer base {
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--color-volcan-bg);
+    color: var(--color-volcan-text);
+    font-family: var(--font-sans);
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
+  }
+}
