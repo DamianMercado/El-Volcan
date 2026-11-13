@@ -1,26 +1,34 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react'
-import { BorrarToken, GuardarToken, LeerToken, UsuarioDesdeToken, GenerarTokenLocal } from '../utils/token'
-import { obtenerSesion, guardarSesion, cerrarSesion as cerrarSesionStorage } from '../assets/data/sesion'
+import {
+  BorrarToken,
+  GuardarToken,
+  LeerToken,
+  UsuarioDesdeToken,
+  obtenerSesion,
+  guardarSesion,
+  cerrarSesion as cerrarSesionStorage,
+  rutaSegunRol,
+} from '../utils/token'
 
 const SesionContext = createContext(null)
 
 const resolverEstadoInicial = () => {
   const tokenGuardado = LeerToken()
   const usuarioDesdeJwt = UsuarioDesdeToken(tokenGuardado)
+  const sesionGuardada = obtenerSesion()
+
+  if (sesionGuardada) {
+    return {
+      token: tokenGuardado,
+      usuario: { ...(usuarioDesdeJwt || {}), ...sesionGuardada },
+    }
+  }
+
   if (usuarioDesdeJwt) {
     return { token: tokenGuardado, usuario: usuarioDesdeJwt }
   }
 
-  // Compatibilidad con sesión previa en localStorage (ej. pruebas o login directo)
-  const sesionPrevia = obtenerSesion()
-  if (sesionPrevia) {
-    const tokenGenerado = GenerarTokenLocal(sesionPrevia)
-    GuardarToken(tokenGenerado)
-    return { token: tokenGenerado, usuario: sesionPrevia }
-  }
-
-  BorrarToken()
   return { token: null, usuario: null }
 }
 
@@ -35,7 +43,7 @@ export const SesionProvider = ({ children }) => {
 
       if (sesionActual) {
         setEstadoSesion({
-          token: tokenActual || GenerarTokenLocal(sesionActual),
+          token: tokenActual,
           usuario: { ...(usuarioJwt || {}), ...sesionActual },
         })
       } else if (usuarioJwt) {
@@ -94,13 +102,12 @@ export const SesionProvider = ({ children }) => {
 export const useSesion = () => {
   const ctx = useContext(SesionContext)
   if (!ctx) {
-    // Fallback seguro cuando un componente se monta en un test aislado sin SesionProvider
-    const usuarioFallback = obtenerSesion()
+    const usuarioActual = obtenerSesion()
     return {
       token: LeerToken(),
-      usuario: usuarioFallback,
-      activa: Boolean(usuarioFallback),
-      esAdmin: (usuarioFallback?.rol || '').toLowerCase() === 'admin',
+      usuario: usuarioActual,
+      activa: Boolean(usuarioActual),
+      esAdmin: (usuarioActual?.rol || '').toLowerCase() === 'admin',
       iniciar: (nuevoToken, usr) => {
         GuardarToken(nuevoToken)
         const dec = usr || UsuarioDesdeToken(nuevoToken)
@@ -114,3 +121,5 @@ export const useSesion = () => {
   }
   return ctx
 }
+
+export { obtenerSesion, guardarSesion, cerrarSesionStorage as cerrarSesion, rutaSegunRol }

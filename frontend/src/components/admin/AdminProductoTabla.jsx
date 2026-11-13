@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Miniatura } from '../ui/Miniatura.jsx'
 import { InsigniaEstado } from '../ui/InsigniaEstado.jsx'
-import { estadoStock, formatearPesos } from '../../assets/data/utilidades.js'
+import { estadoStock, formatearPesos } from '../../utils/formato.js'
 
 const obtenerVarianteEstado = (estado) => {
   const norm = estado.toLowerCase()

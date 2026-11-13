@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { buscarUsuarioPorCredenciales } from '../assets/data/users.js'
-import { guardarSesion, rutaSegunRol } from '../assets/data/sesion.js'
 import { IniciarSesion as IniciarSesionServicio } from '../service/sesionService.js'
+import { guardarSesion, rutaSegunRol } from '../utils/token.js'
 import { useSesion } from '../context/Sesion.jsx'
 import { Campo } from '../components/ui/Campo.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
@@ -32,8 +31,6 @@ export function IniciarSesion() {
   async function verificarInicioSesion(event) {
     event.preventDefault()
     limpiarAlerta()
-
-    const usuarioLocal = buscarUsuarioPorCredenciales(email, password)
     setCargando(true)
 
     try {
@@ -48,7 +45,7 @@ export function IniciarSesion() {
         localStorage.removeItem('recordar_email')
       }
 
-      const usrFinal = respuesta.usuario || usuarioLocal
+      const usrFinal = respuesta.usuario
       if (respuesta.token) {
         iniciar(respuesta.token, usrFinal)
       } else if (usrFinal) {
@@ -56,7 +53,10 @@ export function IniciarSesion() {
       }
 
       const nombreBienvenida =
-        usrFinal?.nombres || usrFinal?.nombre || 'Cliente'
+        usrFinal?.nombreUsuario ||
+        usrFinal?.nombres ||
+        usrFinal?.nombre ||
+        'Cliente'
       mostrarAlerta(`¡Bienvenido, ${nombreBienvenida}!`, 'exito')
 
       setTimeout(() => {

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCarrito } from '../contexts/Carrito.jsx'
-import { obtenerSesion } from '../assets/data/sesion.js'
-import { crearNuevoPedido } from '../assets/data/pedidos.js'
-import { formatearPesos } from '../assets/data/utilidades.js'
+import { useCarrito } from '../context/Carrito.jsx'
+import { obtenerSesion } from '../utils/token.js'
+import { crearNuevoPedido } from '../service/pedidoService.js'
+import { formatearPesos } from '../utils/formato.js'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
 import { EstadoVacio } from '../components/ui/EstadoVacio.jsx'
 import { ItemCarrito } from '../components/pedido/ItemCarrito.jsx'
@@ -46,7 +46,7 @@ export function CreacionPedido() {
   const [metodoPago, setMetodoPago] = useState('')
   const [alerta, setAlerta] = useState({ mensaje: '', tipo: '' })
 
-  const confirmarCreacionPedido = (e) => {
+  const confirmarCreacionPedido = async (e) => {
     e.preventDefault()
     if (carrito.length === 0) {
       setAlerta({
@@ -118,80 +118,91 @@ export function CreacionPedido() {
       }, ${comuna.trim()}`
     }
 
-    // FLUJO 1: PAGAR AHORA (En línea)
-    if (metodoPago === 'pagar_ahora') {
-      const nuevoPedido = crearNuevoPedido({
-        cliente: nombreFinal,
-        telefono: telefonoFinal,
-        rut: rutFinal,
-        email: emailFinal,
-        direccion: direccionFinal,
-        direccionDetalle: {
-          direccion1: usarDirCuenta
-            ? usuario?.direccion || ''
-            : direccion1.trim(),
-          direccion2: usarDirCuenta
-            ? usuario?.depto || ''
-            : direccion2.trim(),
-          comuna: usarDirCuenta ? usuario?.comuna || '' : comuna.trim(),
-          observacion: observacion.trim(),
-        },
-        items: carrito.map((item) => ({
-          producto: item.producto,
-          cantidad: item.cantidad,
-          subtotal: item.producto.precio * item.cantidad,
-        })),
-        total,
-        metodoPago: 'pagar_ahora',
-        subMetodoPago: 'webpay',
-        montoPaga: total,
-        vuelto: 0,
-        desgloseVuelto: null,
-        estadoPago: 'pendiente',
-      })
+    try {
+      // FLUJO 1: PAGAR AHORA (En línea)
+      if (metodoPago === 'pagar_ahora') {
+        const nuevoPedido = await crearNuevoPedido({
+          idUsuario: usuario?.id,
+          cliente: nombreFinal,
+          telefono: telefonoFinal,
+          rut: rutFinal,
+          email: emailFinal,
+          direccion: direccionFinal,
+          direccionDetalle: {
+            direccion1: usarDirCuenta
+              ? usuario?.direccion || ''
+              : direccion1.trim(),
+            direccion2: usarDirCuenta
+              ? usuario?.depto || ''
+              : direccion2.trim(),
+            comuna: usarDirCuenta ? usuario?.comuna || '' : comuna.trim(),
+            observacion: observacion.trim(),
+          },
+          items: carrito.map((item) => ({
+            producto: item.producto,
+            cantidad: item.cantidad,
+            subtotal: item.producto.precio * item.cantidad,
+          })),
+          total,
+          metodoPago: 'pagar_ahora',
+          subMetodoPago: 'webpay',
+          montoPaga: total,
+          vuelto: 0,
+          desgloseVuelto: null,
+          estadoPago: 'pendiente',
+        })
 
-      navigate('/pago', {
-        state: { pedido: nuevoPedido },
-      })
-      return
-    }
+        navigate('/pago', {
+          state: { pedido: nuevoPedido },
+        })
+        return
+      }
 
-    // FLUJO 2: PAGO AL REPARTIDOR
-    if (metodoPago === 'efectivo') {
-      const nuevoPedido = crearNuevoPedido({
-        cliente: nombreFinal,
-        telefono: telefonoFinal,
-        rut: rutFinal,
-        email: emailFinal,
-        direccion: direccionFinal,
-        direccionDetalle: {
-          direccion1: usarDirCuenta
-            ? usuario?.direccion || ''
-            : direccion1.trim(),
-          direccion2: usarDirCuenta
-            ? usuario?.depto || ''
-            : direccion2.trim(),
-          comuna: usarDirCuenta ? usuario?.comuna || '' : comuna.trim(),
-          observacion: observacion.trim(),
-        },
-        items: carrito.map((item) => ({
-          producto: item.producto,
-          cantidad: item.cantidad,
-          subtotal: item.producto.precio * item.cantidad,
-        })),
-        total,
-        metodoPago: 'repartidor',
-        subMetodoPago: 'efectivo',
-        montoPaga: total,
-        vuelto: 0,
-        desgloseVuelto: null,
-        estadoPago: 'pendiente',
-      })
+      // FLUJO 2: PAGO AL REPARTIDOR
+      if (metodoPago === 'efectivo') {
+        const nuevoPedido = await crearNuevoPedido({
+          idUsuario: usuario?.id,
+          cliente: nombreFinal,
+          telefono: telefonoFinal,
+          rut: rutFinal,
+          email: emailFinal,
+          direccion: direccionFinal,
+          direccionDetalle: {
+            direccion1: usarDirCuenta
+              ? usuario?.direccion || ''
+              : direccion1.trim(),
+            direccion2: usarDirCuenta
+              ? usuario?.depto || ''
+              : direccion2.trim(),
+            comuna: usarDirCuenta ? usuario?.comuna || '' : comuna.trim(),
+            observacion: observacion.trim(),
+          },
+          items: carrito.map((item) => ({
+            producto: item.producto,
+            cantidad: item.cantidad,
+            subtotal: item.producto.precio * item.cantidad,
+          })),
+          total,
+          metodoPago: 'repartidor',
+          subMetodoPago: 'efectivo',
+          montoPaga: total,
+          vuelto: 0,
+          desgloseVuelto: null,
+          estadoPago: 'pendiente',
+        })
 
-      limpiarCarrito()
+        limpiarCarrito()
 
-      navigate('/pedido-creado', {
-        state: { pedido: nuevoPedido },
+        navigate('/pedido-creado', {
+          state: { pedido: nuevoPedido },
+        })
+      }
+    } catch (err) {
+      setAlerta({
+        mensaje:
+          err?.message ||
+          'No pudimos registrar tu pedido en este momento. Por favor, inténtalo nuevamente en unos instantes.',
+        tipo: 'error',
       })
     }
   }

@@ -1,19 +1,37 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { CarritoProvider } from "../contexts/Carrito.jsx";
-import { Navbar } from "../assets/components/layouts/Navbar.jsx";
-import { Footer } from "../assets/components/layouts/Footer.jsx";
-import { Productos } from "../assets/components/pages/Productos.jsx";
-import { Login } from "../assets/components/pages/Login.jsx";
+import { CarritoProvider } from "../context/Carrito.jsx";
+import { Navbar } from "../components/layouts/Navbar.jsx";
+import { Footer } from "../components/layouts/Footer.jsx";
+import { Productos } from "../pages/Productos.jsx";
+import { IniciarSesion } from "../pages/IniciarSesion.jsx";
 import { RecuperarContrasena } from "../pages/RecuperarContrasena.jsx";
 import { AdminProductosLista } from "../pages/AdminProductosLista.jsx";
 import { AdminProductoFormulario } from "../pages/AdminProductoFormulario.jsx";
-import { guardarSesion } from "../assets/data/sesion.js";
+import { guardarSesion } from "../utils/token.js";
+
+const PRODUCTOS_API_MOCK = [
+  {
+    id: 6,
+    codigo: "CL003",
+    nombre: "Cilindro gas licuado 15 kg",
+    descripcion: "Recarga de cilindro de gas licuado de 15 kg de alto rendimiento para el hogar",
+    precio: 31990,
+    stock: 25,
+    minimo: 30,
+    categoria: "Cilindros",
+    imagen: "https://res.cloudinary.com/hsr9lgyw/image/upload/v1793984850/CL003.webp",
+  },
+];
 
 describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del DOM", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("12. Navbar: Renderiza botones de invitado ('Ingresar' y 'Registrarse') cuando no hay sesión activa", () => {
@@ -56,7 +74,12 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
     expect(screen.getAllByText("Ingresar").length).toBeGreaterThan(0);
   });
 
-  it("14. Productos: Renderiza el catálogo de productos con sus nombres, precios y botones para agregar al carrito", () => {
+  it("14. Productos: Renderiza el catálogo de productos obtenido del backend con sus nombres, precios y botones para agregar al carrito", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => PRODUCTOS_API_MOCK,
+    });
+
     render(
       <CarritoProvider>
         <MemoryRouter>
@@ -66,16 +89,22 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
     );
 
     expect(screen.getByText("Nuestros Productos")).toBeInTheDocument();
-    expect(screen.getByText("Cilindro gas licuado 15 kg")).toBeInTheDocument();
+    expect(await screen.findByText("Cilindro gas licuado 15 kg")).toBeInTheDocument();
 
     const botonesAgregar = screen.getAllByRole("button", { name: /Agregar/i });
     expect(botonesAgregar.length).toBeGreaterThan(0);
   });
 
-  it("15. Login: Valida los campos y manipula el DOM mostrando alerta ante credenciales incorrectas", async () => {
+  it("15. IniciarSesion: Valida los campos y manipula el DOM mostrando alerta ante credenciales incorrectas del backend", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ mensaje: "Correo o contraseña incorrectos" }),
+    });
+
     render(
       <MemoryRouter>
-        <Login />
+        <IniciarSesion />
       </MemoryRouter>
     );
 
@@ -110,7 +139,12 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
     expect(screen.getByText(/Volver a Iniciar Sesión/i)).toBeInTheDocument();
   });
 
-  it("18. AdminProductosLista (Vista 1 Admin CRUD): Lista los productos existentes y permite confirmar eliminación en línea", () => {
+  it("18. AdminProductosLista (Vista 1 Admin CRUD): Lista los productos del backend y permite confirmar eliminación en línea", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => PRODUCTOS_API_MOCK,
+    });
+
     render(
       <MemoryRouter>
         <AdminProductosLista />
@@ -118,7 +152,7 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
     );
 
     expect(screen.getByText("Gestión de Productos del Catálogo")).toBeInTheDocument();
-    expect(screen.getByText("Cilindro gas licuado 15 kg")).toBeInTheDocument();
+    expect(await screen.findByText("Cilindro gas licuado 15 kg")).toBeInTheDocument();
 
     const botonesEliminar = screen.getAllByRole("button", { name: "Eliminar" });
     expect(botonesEliminar.length).toBeGreaterThan(0);

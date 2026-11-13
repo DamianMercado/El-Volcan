@@ -1,10 +1,19 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { guardarSesion, obtenerSesion, cerrarSesion, rutaSegunRol } from "../assets/data/sesion.js";
-import { buscarUsuarioPorCredenciales, users } from "../assets/data/users.js";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  guardarSesion,
+  obtenerSesion,
+  cerrarSesion,
+  rutaSegunRol,
+} from "../utils/token.js";
+import { IniciarSesion } from "../service/sesionService.js";
 
-describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones", () => {
+describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones con Backend", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("8. guardarSesion almacena los datos públicos en localStorage omitiendo la contraseña", () => {
@@ -23,7 +32,7 @@ describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones", ()
     expect(sesionRecuperada).toBeDefined();
     expect(sesionRecuperada.email).toBe("ana@correo.cl");
     expect(sesionRecuperada.nombres).toBe("Ana");
-    expect(sesionRecuperada.contraseña).toBeUndefined(); // Seguridad: la contraseña nunca se guarda en sesión
+    expect(sesionRecuperada.contraseña).toBeUndefined();
   });
 
   it("9. cerrarSesion elimina la sesión activa y obtenerSesion retorna null", () => {
@@ -34,25 +43,45 @@ describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones", ()
     expect(obtenerSesion()).toBeNull();
   });
 
-  it("10. buscarUsuarioPorCredenciales autentica usuarios existentes y rechaza contraseñas o emails erróneos", () => {
-    const usuarioBase = users[0]; // Usuario inicial registrado (admin)
+  it("10. IniciarSesion autentica contra ms-auth y rechaza credenciales erróneas", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          id: 1,
+          idUsuario: 1,
+          nombreUsuario: "Andrea Muñoz",
+          email: "admin@el-volcan.com",
+          rol: "ADMIN",
+          token: "jwt-token-real-backend",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({
+          mensaje: "Correo o contraseña incorrectos",
+        }),
+      });
 
-    // Autenticación exitosa
-    const autenticado = buscarUsuarioPorCredenciales(usuarioBase.email, usuarioBase.contraseña);
-    expect(autenticado).toBeDefined();
-    expect(autenticado.email).toBe(usuarioBase.email);
+    const autenticado = await IniciarSesion({
+      email: "admin@el-volcan.com",
+      password: "admin123",
+    });
+    expect(autenticado.token).toBe("jwt-token-real-backend");
+    expect(autenticado.usuario.email).toBe("admin@el-volcan.com");
 
-    // Error por contraseña incorrecta
-    const claveErronea = buscarUsuarioPorCredenciales(usuarioBase.email, "clave_incorrecta_999");
-    expect(claveErronea).toBeNull();
-
-    // Error por correo inexistente
-    const correoInexistente = buscarUsuarioPorCredenciales("no_existe@volcan.cl", "cualquiera");
-    expect(correoInexistente).toBeNull();
+    await expect(
+      IniciarSesion({
+        email: "admin@el-volcan.com",
+        password: "clave_incorrecta_999",
+      })
+    ).rejects.toThrow("Correo o contraseña incorrectos");
   });
 
   it("11. rutaSegunRol redirecciona al administrador a /administradora y a clientes al inicio", () => {
     expect(rutaSegunRol("admin")).toBe("/administradora");
+    expect(rutaSegunRol("ADMIN")).toBe("/administradora");
     expect(rutaSegunRol("cliente")).toBe("/");
     expect(rutaSegunRol(null)).toBe("/");
   });

@@ -1,4 +1,4 @@
-import { formatearPesos } from '../../assets/data/utilidades.js'
+import { formatearPesos } from '../../utils/formato.js'
 
 export function ReciboTablaItems({ pedido }) {
   return (

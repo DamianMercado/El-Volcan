@@ -1,27 +1,32 @@
 import { useState, useEffect } from 'react'
-import { obtenerProductosLocales } from '../assets/data/productos.js'
 import { ListarProductos } from '../service/productoService.js'
-import { useCarrito } from '../contexts/Carrito.jsx'
+import { useCarrito } from '../context/Carrito.jsx'
 import { TarjetaProducto } from '../components/productos/TarjetaProducto.jsx'
 import { FiltroCategorias } from '../components/productos/FiltroCategorias.jsx'
+import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
 
 export function Productos() {
   const { agregarAlCarrito } = useCarrito()
-  const [listaProductos, setListaProductos] = useState(() =>
-    obtenerProductosLocales()
-  )
+  const [listaProductos, setListaProductos] = useState([])
   const [categoriaActiva, setCategoriaActiva] = useState('todos')
+  const [avisoError, setAvisoError] = useState('')
 
   useEffect(() => {
     let montado = true
     ListarProductos()
       .then((datos) => {
-        if (montado && Array.isArray(datos) && datos.length > 0) {
+        if (montado && Array.isArray(datos)) {
           setListaProductos(datos)
+          setAvisoError('')
         }
       })
-      .catch(() => {
-        // Se mantiene el catálogo local como respaldo
+      .catch((err) => {
+        if (montado) {
+          setAvisoError(
+            err?.message ||
+              'En este momento no pudimos mostrar los productos disponibles. Por favor, intenta nuevamente en unos minutos.'
+          )
+        }
       })
     return () => {
       montado = false
@@ -52,6 +57,12 @@ export function Productos() {
         <FiltroCategorias
           categoriaActiva={categoriaActiva}
           alCambiarCategoria={setCategoriaActiva}
+        />
+
+        <BannerAlerta
+          mensaje={avisoError}
+          tipo="error"
+          className="mx-auto mb-6 max-w-2xl"
         />
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

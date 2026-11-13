@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { fechaDeHoy } from '../../assets/data/utilidades.js'
+import { fechaDeHoy } from '../../utils/formato.js'
 
 export function CabeceraAdminNav({
   titulo = 'Panel de administración',

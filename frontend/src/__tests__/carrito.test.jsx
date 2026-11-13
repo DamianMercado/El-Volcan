@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { CarritoProvider, useCarrito } from "../contexts/Carrito.jsx";
+import { CarritoProvider, useCarrito } from "../context/Carrito.jsx";
 
 // Componente auxiliar para probar la interacción y manipulación del DOM con el carrito
 function ComponentePruebaCarrito() {

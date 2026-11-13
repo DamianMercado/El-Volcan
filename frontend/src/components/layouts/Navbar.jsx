@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useCarrito } from '../../contexts/Carrito.jsx'
-import { obtenerSesion, cerrarSesion } from '../../assets/data/sesion.js'
+import { useCarrito } from '../../context/Carrito.jsx'
+import { obtenerSesion, cerrarSesion } from '../../utils/token.js'
 import { BotonCarritoNav } from './BotonCarritoNav.jsx'
 import { AccionesUsuarioNav } from './AccionesUsuarioNav.jsx'
 

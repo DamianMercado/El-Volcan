@@ -1,4 +1,4 @@
-import { estadoStock, formatearPesos } from '../../assets/data/utilidades.js'
+import { estadoStock, formatearPesos } from '../../utils/formato.js'
 
 export function TarjetasResumen({ productos, pedidos, solicitudes }) {
   const valorInventario = productos.reduce(

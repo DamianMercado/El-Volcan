@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useSesion } from '../../context/Sesion'
-import { rutaSegunRol } from '../../assets/data/sesion'
+import { rutaSegunRol } from '../../utils/token'
 
 export const RutaPublica = ({ children }) => {
   const { activa, usuario } = useSesion()

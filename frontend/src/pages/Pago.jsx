@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useCarrito } from '../contexts/Carrito.jsx'
+import { useCarrito } from '../context/Carrito.jsx'
 import {
   actualizarEstadoPago,
   obtenerUltimoPedido,
-} from '../assets/data/pedidos.js'
+} from '../service/pedidoService.js'
 import { EstadoVacio } from '../components/ui/EstadoVacio.jsx'
 import { FormularioTarjetaWebpay } from '../components/pago/FormularioTarjetaWebpay.jsx'
 import { ControlesPruebaPago } from '../components/pago/ControlesPruebaPago.jsx'
@@ -70,25 +70,22 @@ export function Pago() {
     setErrorRechazo(null)
   }
 
-  const procesarPago = (e) => {
+  const procesarPago = async (e) => {
     e.preventDefault()
     if (!pedido) return
 
     setErrorRechazo(null)
     setProcesando(true)
 
-    setTimeout(() => {
-      const codigoTransaccion = `TRX-${Math.floor(100000 + Math.random() * 900000)}`
-      const codigoAutorizacion = `AUT-${Math.floor(100000 + Math.random() * 900000)}`
+    try {
       const ultimos4 = numeroTarjeta.replace(/\s/g, '').slice(-4) || '0001'
 
-      const pedidoActualizado = actualizarEstadoPago(pedido.id, {
+      const pedidoActualizado = await actualizarEstadoPago(pedido.id, {
+        montoPago: pedido.total,
         email: email.trim(),
         cliente: nombreTitular.trim() || pedido.cliente,
         estadoPago: 'pagado',
         subMetodoPago: `webpay_${tipoMedio}`,
-        codigoTransaccion,
-        codigoAutorizacion,
         tarjetaTerminacion: ultimos4,
       })
 
@@ -96,19 +93,21 @@ export function Pago() {
 
       navigate('/pedido-creado', {
         state: {
-          pedido: pedidoActualizado || {
+          pedido: {
             ...pedido,
-            email: email.trim(),
-            cliente: nombreTitular.trim() || pedido.cliente,
-            estadoPago: 'pagado',
-            subMetodoPago: `webpay_${tipoMedio}`,
-            codigoTransaccion,
-            codigoAutorizacion,
-            tarjetaTerminacion: ultimos4,
+            ...pedidoActualizado,
           },
         },
       })
-    }, 1400)
+    } catch (err) {
+      setProcesando(false)
+      setErrorRechazo({
+        codigo: '-1',
+        mensaje:
+          err?.message ||
+          'No pudimos completar tu pago en este momento. No se realizó ningún cobro a tu tarjeta; por favor inténtalo nuevamente.',
+      })
+    }
   }
 
   const simularRechazo = () => {

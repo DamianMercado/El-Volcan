@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SesionProvider } from './context/Sesion.jsx'
-import { CarritoProvider } from './contexts/Carrito.jsx'
+import { CarritoProvider } from './context/Carrito.jsx'
 import { Layout } from './components/layouts/Layout.jsx'
 import { RutaPublica, RutaPrivada } from './components/layouts/Rutas.jsx'
 

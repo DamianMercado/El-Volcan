@@ -13,7 +13,7 @@ import {
   aValoresFormularioProducto,
   aPayloadProducto,
 } from '../utils/formularioProducto.js'
-import { formatearPesos } from '../assets/data/utilidades.js'
+import { formatearPesos } from '../utils/formato.js'
 import { CabeceraAdminNav } from '../components/admin/CabeceraAdminNav.jsx'
 import { Campo } from '../components/ui/Campo.jsx'
 import { Miniatura } from '../components/ui/Miniatura.jsx'
@@ -52,7 +52,10 @@ export function AdminProductoFormulario() {
       })
       .catch((err) => {
         if (montado) {
-          setError(err?.message || 'No se encontró el producto solicitado.')
+          setError(
+            err?.message ||
+              'En este momento no pudimos obtener la información del producto.'
+          )
         }
       })
       .finally(() => {

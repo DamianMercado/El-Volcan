@@ -1,5 +1,7 @@
 import { Variables } from '../config/variables'
 
+const CLAVE_SESION = 'usuario_sesion'
+
 export const GuardarToken = (token) => {
   if (!token) return
   localStorage.setItem(Variables.tokenKey, token)
@@ -9,55 +11,6 @@ export const LeerToken = () => localStorage.getItem(Variables.tokenKey)
 
 export const BorrarToken = () => {
   localStorage.removeItem(Variables.tokenKey)
-}
-
-/**
- * Genera un JWT Base64URL válido para el entorno local / pruebas cuando el backend Docker no está activo.
- */
-export const GenerarTokenLocal = (usuario) => {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
-
-  const nombreCompleto =
-    usuario.nombre ||
-    usuario.nombreUsuario ||
-    `${usuario.nombres || ''} ${usuario.apellidos || ''}`.trim() ||
-    'Cliente El Volcán'
-  const correo = usuario.correo || usuario.email || ''
-  const perfil = (usuario.perfil || usuario.rol || 'cliente').toLowerCase()
-
-  const payloadObj = {
-    sub: correo,
-    idUsuario: usuario.id || 1,
-    nombre: nombreCompleto,
-    nombreUsuario: nombreCompleto,
-    nombres: usuario.nombres || nombreCompleto.split(' ')[0] || nombreCompleto,
-    apellidos: usuario.apellidos || nombreCompleto.split(' ').slice(1).join(' ') || '',
-    correo,
-    email: correo,
-    perfil,
-    rol: perfil,
-    rut: usuario.rut || '',
-    telefono: usuario.telefono || '',
-    direccion: usuario.direccion || '',
-    depto: usuario.depto || '',
-    comuna: usuario.comuna || '',
-    exp: Math.floor(Date.now() / 1000) + 86400,
-  }
-
-  const jsonPayload = encodeURIComponent(JSON.stringify(payloadObj)).replace(
-    /%([0-9A-F]{2})/g,
-    (_, p1) => String.fromCharCode(parseInt(p1, 16)),
-  )
-
-  const payload = btoa(jsonPayload)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
-
-  return `${header}.${payload}.local-signature`
 }
 
 export const UsuarioDesdeToken = (token) => {
@@ -104,4 +57,47 @@ export const UsuarioDesdeToken = (token) => {
   } catch {
     return null
   }
+}
+
+export function guardarSesion(usuario) {
+  const datosPublicos = { ...usuario }
+  delete datosPublicos.contraseña
+  delete datosPublicos.password
+  if (datosPublicos.rol) {
+    datosPublicos.rol = String(datosPublicos.rol).toLowerCase()
+  }
+  localStorage.setItem(CLAVE_SESION, JSON.stringify(datosPublicos))
+
+  if (datosPublicos.token) {
+    GuardarToken(datosPublicos.token)
+  }
+
+  try {
+    window.dispatchEvent(new Event('sesion_cambiada'))
+  } catch {
+    // Entorno sin soporte de window
+  }
+}
+
+export function obtenerSesion() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_SESION))
+  } catch {
+    return null
+  }
+}
+
+export function cerrarSesion() {
+  localStorage.removeItem(CLAVE_SESION)
+  BorrarToken()
+  try {
+    window.dispatchEvent(new Event('sesion_cambiada'))
+  } catch {
+    // Entorno sin soporte de window
+  }
+}
+
+export function rutaSegunRol(rol) {
+  if (String(rol || '').toLowerCase() === 'admin') return '/administradora'
+  return '/'
 }

@@ -4,15 +4,14 @@ import {
   ListarProductos,
   EliminarProducto,
 } from '../service/productoService.js'
-import { obtenerProductosLocales } from '../assets/data/productos.js'
-import { estadoStock, formatearPesos } from '../assets/data/utilidades.js'
+import { estadoStock, formatearPesos } from '../utils/formato.js'
 import { CabeceraAdminNav } from '../components/admin/CabeceraAdminNav.jsx'
 import { AdminProductoTabla } from '../components/admin/AdminProductoTabla.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
 
 export function AdminProductosLista() {
   const location = useLocation()
-  const [productos, setProductos] = useState(() => obtenerProductosLocales())
+  const [productos, setProductos] = useState([])
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
   const [avisoExito, setAvisoExito] = useState(
@@ -33,7 +32,11 @@ export function AdminProductosLista() {
         }
       })
       .catch((err) => {
-        if (montado) setError(err?.message || 'Error al cargar productos')
+        if (montado)
+          setError(
+            err?.message ||
+              'En este momento no pudimos cargar los productos del catálogo. Por favor, intenta nuevamente en unos minutos.'
+          )
       })
       .finally(() => {
         if (montado) setCargando(false)
@@ -68,18 +71,23 @@ export function AdminProductosLista() {
     const termino = busqueda.trim().toLowerCase()
     if (!termino) return coincideCategoria
     return (
-      coincideCategoria &&
-      (String(p.nombre || '')
-        .toLowerCase()
-        .includes(termino) ||
-        String(p.codigo || '')
-          .toLowerCase()
-          .includes(termino) ||
-        String(p.descripcion || '')
-          .toLowerCase()
-          .includes(termino))
+      concideBusqueda(p, termino) && coincideCategoria
     )
   })
+
+  function concideBusqueda(p, termino) {
+    return (
+      String(p.nombre || '')
+        .toLowerCase()
+        .includes(termino) ||
+      String(p.codigo || '')
+        .toLowerCase()
+        .includes(termino) ||
+      String(p.descripcion || '')
+        .toLowerCase()
+        .includes(termino)
+    )
+  }
 
   const totalProductos = productos.length
   const totalUnidades = productos.reduce((acc, p) => acc + (p.stock || 0), 0)

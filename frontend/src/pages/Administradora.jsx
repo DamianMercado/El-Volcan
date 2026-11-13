@@ -6,38 +6,63 @@ import { TablaStock } from '../components/admin/TablaStock.jsx'
 import { PedidosClientes } from '../components/admin/PedidosClientes.jsx'
 import { Repartidores } from '../components/admin/Repartidores.jsx'
 import { SolicitarStock } from '../components/admin/SolicitarStock.jsx'
-import { fechaDeHoy } from '../assets/data/utilidades.js'
+import { fechaDeHoy } from '../utils/formato.js'
 import {
-  repartidores,
-  solicitudesIniciales,
-} from '../assets/data/administracion.js'
-import {
-  obtenerProductosLocales,
-  guardarProductosLocales,
-} from '../assets/data/productos.js'
+  ListarSolicitudesStock,
+  CrearSolicitudStock,
+  ConfirmarRecepcionStock,
+  ListarRepartidores,
+} from '../service/inventarioService.js'
 import { ListarProductos } from '../service/productoService.js'
 import {
-  obtenerPedidos,
+  ListarPedidosServicio,
   asignarRepartidorPedido,
-} from '../assets/data/pedidos.js'
+} from '../service/pedidoService.js'
 
 export function Administradora() {
-  const [productos, setProductos] = useState(() => obtenerProductosLocales())
-  const [pedidos, setPedidos] = useState(() => obtenerPedidos())
-  const [solicitudes, setSolicitudes] = useState(solicitudesIniciales)
+  const [productos, setProductos] = useState([])
+  const [pedidos, setPedidos] = useState([])
+  const [solicitudes, setSolicitudes] = useState([])
+  const [repartidores, setRepartidores] = useState([])
   const [codigoSolicitud, setCodigoSolicitud] = useState('')
 
   const formularioRef = useRef(null)
 
   useEffect(() => {
     let montado = true
+
     ListarProductos()
       .then((lista) => {
-        if (montado && Array.isArray(lista) && lista.length > 0) {
+        if (montado && Array.isArray(lista)) {
           setProductos(lista)
         }
       })
       .catch(() => {})
+
+    ListarPedidosServicio()
+      .then((listaPedidos) => {
+        if (montado && Array.isArray(listaPedidos)) {
+          setPedidos(listaPedidos)
+        }
+      })
+      .catch(() => {})
+
+    ListarSolicitudesStock()
+      .then((listaSol) => {
+        if (montado && Array.isArray(listaSol)) {
+          setSolicitudes(listaSol)
+        }
+      })
+      .catch(() => {})
+
+    ListarRepartidores()
+      .then((listaRep) => {
+        if (montado && Array.isArray(listaRep)) {
+          setRepartidores(listaRep)
+        }
+      })
+      .catch(() => {})
+
     return () => {
       montado = false
     }
@@ -48,43 +73,39 @@ export function Administradora() {
     formularioRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  function solicitarStock(codigo, cantidad, nota) {
-    const nueva = {
-      id: Date.now(),
-      codigo,
-      cantidad,
-      nota,
-      fecha: fechaDeHoy(),
-      estado: 'Pendiente',
-    }
-    setSolicitudes((anteriores) => [nueva, ...anteriores])
+  async function solicitarStock(codigo, cantidad, nota) {
+    const creada = await CrearSolicitudStock({ codigo, cantidad, nota })
+    setSolicitudes((anteriores) => [creada, ...anteriores])
     setCodigoSolicitud('')
   }
 
-  function recibirSolicitud(id) {
+  async function recibirSolicitud(id) {
     const solicitud = solicitudes.find((s) => s.id === id)
     if (!solicitud) return
 
+    await ConfirmarRecepcionStock(id)
     setSolicitudes((anteriores) =>
       anteriores.map((s) => (s.id === id ? { ...s, estado: 'Recibida' } : s))
     )
-    setProductos((anteriores) => {
-      const actualizados = anteriores.map((p) =>
+    setProductos((anteriores) =>
+      anteriores.map((p) =>
         p.codigo === solicitud.codigo
           ? { ...p, stock: p.stock + solicitud.cantidad }
           : p
       )
-      guardarProductosLocales(actualizados)
-      return actualizados
-    })
+    )
   }
 
-  function asignarRepartidor(idPedido, nombreRepartidor) {
-    const pedidosActualizados = asignarRepartidorPedido(
+  async function asignarRepartidor(idPedido, nombreRepartidor) {
+    const pedidoActualizado = await asignarRepartidorPedido(
       idPedido,
       nombreRepartidor
     )
-    setPedidos(pedidosActualizados)
+    setPedidos((anteriores) =>
+      anteriores.map((p) =>
+        String(p.id) === String(idPedido) ? pedidoActualizado : p
+      )
+    )
   }
 
   return (

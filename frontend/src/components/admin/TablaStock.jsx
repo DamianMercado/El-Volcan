@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { estadoStock, formatearPesos } from '../../assets/data/utilidades.js'
+import { estadoStock, formatearPesos } from '../../utils/formato.js'
 import { InsigniaEstado } from '../ui/InsigniaEstado.jsx'
 
 const obtenerVarianteEstado = (estado) => {
