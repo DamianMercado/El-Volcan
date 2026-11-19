@@ -1,108 +1,20 @@
 services:
-  # ==================== BASES DE DATOS MYSQL ====================
+  # ==================== MONGODB (RESPALDO LOCAL / ATLAS CLOUD) ====================
+  # Si defines MONGO_URI=mongodb+srv://... en un archivo .env en esta carpeta,
+  # todos los microservicios se conectarán directamente a tu cluster de MongoDB Atlas.
 
-  mysql-usuario:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-usuario
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_usuario
+  mongodb:
+    image: mongo:7.0
+    container_name: elvolcan-mongodb
     ports:
-      - "3307:3306"
-    volumes:
-      - mysql_usuario_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - elvolcan-net
-
-  mysql-auth:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-auth
+      - "27017:27017"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_auth
-    ports:
-      - "3308:3306"
+      MONGO_INITDB_DATABASE: el_volcan_db
     volumes:
-      - mysql_auth_data:/var/lib/mysql
+      - mongodb_data:/data/db
+      - ./mongodb/volcan_mongodb_setup.js:/docker-entrypoint-initdb.d/volcan_mongodb_setup.js:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - elvolcan-net
-
-  mysql-inventario:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-inventario
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_inventario
-    ports:
-      - "3309:3306"
-    volumes:
-      - mysql_inventario_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - elvolcan-net
-
-  mysql-catalogo:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-catalogo
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_catalogo
-    ports:
-      - "3310:3306"
-    volumes:
-      - mysql_catalogo_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - elvolcan-net
-
-  mysql-venta:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-venta
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_venta
-    ports:
-      - "3311:3306"
-    volumes:
-      - mysql_venta_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - elvolcan-net
-
-  mysql-pago:
-    image: mysql:8.0
-    container_name: elvolcan-mysql-pago
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms_pago
-    ports:
-      - "3312:3306"
-    volumes:
-      - mysql_pago_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -143,7 +55,7 @@ services:
       - elvolcan-net
     restart: unless-stopped
 
-  # ==================== MICROSERVICIOS ====================
+  # ==================== MICROSERVICIOS (SPRING DATA MONGODB ATLAS) ====================
 
   ms-usuario:
     build:
@@ -155,12 +67,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-usuario:3306/ms_usuario
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-usuario:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -178,12 +89,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-auth:3306/ms_auth
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-auth:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -203,12 +113,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-inventario:3306/ms_inventario
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-inventario:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -228,12 +137,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-catalogo:3306/ms_catalogo
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-catalogo:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -255,12 +163,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-venta:3306/ms_venta
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-venta:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -284,12 +191,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_URL=http://eureka-server:8761/eureka/
-      - DB_URL=jdbc:mysql://mysql-pago:3306/ms_pago
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
       - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
     depends_on:
-      mysql-pago:
+      mongodb:
         condition: service_healthy
       eureka-server:
         condition: service_started
@@ -306,9 +212,4 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_usuario_data:
-  mysql_auth_data:
-  mysql_inventario_data:
-  mysql_catalogo_data:
-  mysql_venta_data:
-  mysql_pago_data:
+  mongodb_data:

@@ -13,31 +13,49 @@ spring:
             uri: lb://ms-auth
             predicates:
               - Path=/api/v1/auth/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
           - id: ms-usuario
             uri: lb://ms-usuario
             predicates:
               - Path=/api/v1/usuarios/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
           - id: ms-inventario
             uri: lb://ms-inventario
             predicates:
               - Path=/api/v1/inventario/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
           - id: ms-catalogo
             uri: lb://ms-catalogo
             predicates:
               - Path=/api/v1/catalogo/**,/api/v1/productos/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
           - id: ms-venta
             uri: lb://ms-venta
             predicates:
               - Path=/api/v1/ventas/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
           - id: ms-pago
             uri: lb://ms-pago
             predicates:
               - Path=/api/v1/pagos/**
+            filters:
+              - RemoveResponseHeader=Access-Control-Allow-Origin
+              - RemoveResponseHeader=Access-Control-Allow-Credentials
 
 app:
   cors:
@@ -45,6 +63,8 @@ app:
 
 eureka:
   client:
+    restclient:
+      enabled: true
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
     register-with-eureka: true
