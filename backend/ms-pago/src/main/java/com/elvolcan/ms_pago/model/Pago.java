@@ -1,11 +1,14 @@
 package com.elvolcan.ms_pago.model;
 
 import com.elvolcan.ms_pago.enums.EstadoPago;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -13,43 +16,40 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "pago")
+@Document(collection = "pago")
 public class Pago {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pago")
     private Long id;
 
-    @Column(name = "id_venta", nullable = false)
+    @Indexed
+    @Field("id_venta")
     private Long idVenta;
 
-    @Column(name = "monto_pago", nullable = false)
+    @Field("monto_pago")
     private Double montoPago;
 
-    @Column(name = "metodo_pago", nullable = false, length = 50)
+    @Field("metodo_pago")
     private String metodoPago;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_pago", nullable = false, length = 30)
+    @Field("estado_pago")
     private EstadoPago estadoPago;
 
-    @Column(name = "codigo_transaccion", nullable = false, length = 50)
+    @Field("codigo_transaccion")
     private String codigoTransaccion;
 
-    @Column(name = "codigo_autorizacion", nullable = false, length = 50)
+    @Field("codigo_autorizacion")
     private String codigoAutorizacion;
 
-    @Column(name = "tarjeta_terminacion", length = 10)
+    @Field("tarjeta_terminacion")
     private String tarjetaTerminacion;
 
-    @Column(name = "email_comprobante", length = 100)
+    @Field("email_comprobante")
     private String emailComprobante;
 
-    @Column(name = "nombre_titular", length = 150)
+    @Field("nombre_titular")
     private String nombreTitular;
 
-    @Column(name = "fecha_pago", nullable = false)
+    @Field("fecha_pago")
     private LocalDateTime fechaPago;
 }
