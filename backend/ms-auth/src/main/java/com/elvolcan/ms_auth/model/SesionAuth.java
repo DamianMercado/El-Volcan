@@ -1,11 +1,14 @@
 package com.elvolcan.ms_auth.model;
 
 import com.elvolcan.ms_auth.enums.EstadoSesion;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -13,37 +16,34 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "sesion_auth")
+@Document(collection = "sesion_auth")
 public class SesionAuth {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_sesion")
     private Long id;
 
-    @Column(name = "id_usuario", nullable = false)
+    @Field("id_usuario")
     private Long idUsuario;
 
-    @Column(name = "nombre_usuario", nullable = false, length = 150)
+    @Field("nombre_usuario")
     private String nombreUsuario;
 
-    @Column(name = "email", nullable = false, length = 100)
+    @Field("email")
     private String email;
 
-    @Column(name = "rol", nullable = false, length = 30)
+    @Field("rol")
     private String rol;
 
-    @Column(name = "token", nullable = false, unique = true, length = 512)
+    @Indexed(unique = true)
+    @Field("token")
     private String token;
 
-    @Column(name = "fecha_inicio", nullable = false)
+    @Field("fecha_inicio")
     private LocalDateTime fechaInicio;
 
-    @Column(name = "fecha_expiracion", nullable = false)
+    @Field("fecha_expiracion")
     private LocalDateTime fechaExpiracion;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false, length = 30)
+    @Field("estado")
     private EstadoSesion estado;
 }
