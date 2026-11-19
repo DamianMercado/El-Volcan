@@ -5,6 +5,11 @@ import { guardarSesion, rutaSegunRol } from '../utils/token.js'
 import { useSesion } from '../context/Sesion.jsx'
 import { Campo } from '../components/ui/Campo.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoFormularioAutenticacion,
+  EsqueletoProceso,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 export function IniciarSesion() {
   const navigate = useNavigate()
@@ -19,6 +24,7 @@ export function IniciarSesion() {
   )
   const [alerta, setAlerta] = useState({ mensaje: '', tipo: '' })
   const [cargando, setCargando] = useState(false)
+  const cargandoVista = useEsperaEsqueleto()
 
   function mostrarAlerta(mensaje, tipo = 'error') {
     setAlerta({ mensaje, tipo })
@@ -84,69 +90,83 @@ export function IniciarSesion() {
           </p>
         </div>
 
-        <form onSubmit={verificarInicioSesion} className="flex flex-col gap-4">
-          <BannerAlerta mensaje={alerta.mensaje} tipo={alerta.tipo} />
-
-          <Campo
-            id="email"
-            name="email"
-            type="email"
-            etiqueta="Correo Electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@correo.com"
-            variante="oscuro"
-            required
-          />
-
-          <Campo
-            id="password"
-            name="password"
-            type="password"
-            etiqueta="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            variante="oscuro"
-            required
-          />
-
-          <div className="flex items-center justify-between text-xs text-white/85">
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={recordar}
-                onChange={(e) => setRecordar(e.target.checked)}
-                className="h-4 w-4 rounded border-white/30 accent-[#00A8E8]"
-              />
-              <span>Recordarme</span>
-            </label>
-            <Link
-              to="/recuperar-contrasena"
-              className="font-semibold text-[#00A8E8] no-underline hover:underline"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            disabled={cargando}
-            className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#e03d00] disabled:opacity-60"
+        {cargandoVista ? (
+          <EsqueletoFormularioAutenticacion filas={2} />
+        ) : (
+          <form
+            onSubmit={verificarInicioSesion}
+            className="flex flex-col gap-4"
           >
-            {cargando ? 'Ingresando...' : 'Iniciar Sesión'}
-          </button>
+            <BannerAlerta mensaje={alerta.mensaje} tipo={alerta.tipo} />
 
-          <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
-            ¿Aún no tienes cuenta?{' '}
-            <Link
-              to="/register"
-              className="font-semibold text-[#00A8E8] no-underline hover:underline"
+            <Campo
+              id="email"
+              name="email"
+              type="email"
+              etiqueta="Correo Electrónico"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@correo.com"
+              variante="oscuro"
+              required
+            />
+
+            <Campo
+              id="password"
+              name="password"
+              type="password"
+              etiqueta="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Contraseña"
+              variante="oscuro"
+              required
+            />
+
+            <div className="flex items-center justify-between text-xs text-white/85">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={recordar}
+                  onChange={(e) => setRecordar(e.target.checked)}
+                  className="h-4 w-4 rounded border-white/30 accent-[#00A8E8]"
+                />
+                <span>Recordarme</span>
+              </label>
+              <Link
+                to="/recuperar-contrasena"
+                className="font-semibold text-[#00A8E8] no-underline hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+
+            {cargando && (
+              <EsqueletoProceso
+                etiqueta="Verificando credenciales de acceso..."
+                variante="oscuro"
+              />
+            )}
+
+            <button
+              type="submit"
+              disabled={cargando}
+              className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#e03d00] disabled:opacity-60"
             >
-              Regístrate aquí
-            </Link>
-          </div>
-        </form>
+              {cargando ? 'Ingresando...' : 'Iniciar Sesión'}
+            </button>
+
+            <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
+              ¿Aún no tienes cuenta?{' '}
+              <Link
+                to="/register"
+                className="font-semibold text-[#00A8E8] no-underline hover:underline"
+              >
+                Regístrate aquí
+              </Link>
+            </div>
+          </form>
+        )}
       </div>
     </main>
   )

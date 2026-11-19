@@ -3,6 +3,10 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { obtenerUltimoPedido } from '../service/pedidoService.js'
 import { obtenerSesion } from '../utils/token.js'
 import { EstadoVacio } from '../components/ui/EstadoVacio.jsx'
+import {
+  EsqueletoRecibo,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 import { ReciboCabecera } from '../components/recibo/ReciboCabecera.jsx'
 import { ReciboTablaItems } from '../components/recibo/ReciboTablaItems.jsx'
 import { ReciboTotales } from '../components/recibo/ReciboTotales.jsx'
@@ -16,6 +20,7 @@ export function PedidoCreado() {
   const [pedido] = useState(() => {
     return location.state?.pedido || obtenerUltimoPedido()
   })
+  const cargandoVista = useEsperaEsqueleto()
 
   const numeroRecibo =
     String(pedido?.id || '').replace(/\D/g, '') || String(pedido?.id || '1')
@@ -48,6 +53,14 @@ export function PedidoCreado() {
     pedido.metodoPago === 'repartidor' && pedido.subMetodoPago === 'efectivo'
   const esTarjetaRepartidor =
     pedido.metodoPago === 'repartidor' && pedido.subMetodoPago === 'tarjeta'
+
+  if (cargandoVista) {
+    return (
+      <main className="min-h-[calc(100vh-140px)] bg-slate-100 px-4 py-8">
+        <EsqueletoRecibo />
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-[calc(100vh-140px)] bg-slate-100 px-4 py-8 print:bg-white print:p-0">

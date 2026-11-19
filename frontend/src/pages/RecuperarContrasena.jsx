@@ -4,6 +4,11 @@ import { useFormulario } from '../hooks/useFormulario.js'
 import { RecuperarClaveServicio } from '../service/sesionService.js'
 import { Campo } from '../components/ui/Campo.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoFormularioAutenticacion,
+  EsqueletoProceso,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const LONGITUD_MINIMA_CLAVE = 6
@@ -19,6 +24,7 @@ export function RecuperarContrasena() {
   const { valores, cambiar, reiniciar } = useFormulario(VALORES_INICIALES)
   const [alerta, setAlerta] = useState({ mensaje: '', tipo: '' })
   const [procesando, setProcesando] = useState(false)
+  const cargandoVista = useEsperaEsqueleto()
 
   const enviarFormulario = async (e) => {
     e.preventDefault()
@@ -94,65 +100,76 @@ export function RecuperarContrasena() {
           </p>
         </div>
 
-        <form onSubmit={enviarFormulario} className="flex flex-col gap-4">
-          <BannerAlerta mensaje={alerta.mensaje} tipo={alerta.tipo} />
+        {cargandoVista ? (
+          <EsqueletoFormularioAutenticacion filas={3} />
+        ) : (
+          <form onSubmit={enviarFormulario} className="flex flex-col gap-4">
+            <BannerAlerta mensaje={alerta.mensaje} tipo={alerta.tipo} />
 
-          <Campo
-            id="recuperar-email"
-            name="email"
-            type="email"
-            etiqueta="Correo Electrónico Registrado"
-            value={valores.email}
-            onChange={cambiar}
-            placeholder="tu@correo.com"
-            variante="oscuro"
-            required
-          />
+            <Campo
+              id="recuperar-email"
+              name="email"
+              type="email"
+              etiqueta="Correo Electrónico Registrado"
+              value={valores.email}
+              onChange={cambiar}
+              placeholder="tu@correo.com"
+              variante="oscuro"
+              required
+            />
 
-          <Campo
-            id="recuperar-nueva-clave"
-            name="nuevaPassword"
-            type="password"
-            etiqueta="Nueva Contraseña"
-            value={valores.nuevaPassword}
-            onChange={cambiar}
-            placeholder="Mínimo 6 caracteres"
-            variante="oscuro"
-            required
-          />
+            <Campo
+              id="recuperar-nueva-clave"
+              name="nuevaPassword"
+              type="password"
+              etiqueta="Nueva Contraseña"
+              value={valores.nuevaPassword}
+              onChange={cambiar}
+              placeholder="Mínimo 6 caracteres"
+              variante="oscuro"
+              required
+            />
 
-          <Campo
-            id="recuperar-confirmar-clave"
-            name="confirmarPassword"
-            type="password"
-            etiqueta="Confirmar Nueva Contraseña"
-            value={valores.confirmarPassword}
-            onChange={cambiar}
-            placeholder="Repite tu nueva contraseña"
-            variante="oscuro"
-            required
-          />
+            <Campo
+              id="recuperar-confirmar-clave"
+              name="confirmarPassword"
+              type="password"
+              etiqueta="Confirmar Nueva Contraseña"
+              value={valores.confirmarPassword}
+              onChange={cambiar}
+              placeholder="Repite tu nueva contraseña"
+              variante="oscuro"
+              required
+            />
 
-          <button
-            type="submit"
-            disabled={procesando}
-            className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#e03d00] disabled:opacity-60"
-          >
-            {procesando
-              ? 'Actualizando contraseña...'
-              : 'Restablecer Contraseña'}
-          </button>
+            {procesando && (
+              <EsqueletoProceso
+                etiqueta="Actualizando contraseña de acceso..."
+                variante="oscuro"
+              />
+            )}
 
-          <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
-            ¿Recordaste tu contraseña?{' '}
-            <Link
-              to="/login"
-              className="font-semibold text-[#00A8E8] no-underline hover:underline"
+            <button
+              type="submit"
+              disabled={procesando}
+              className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3 text-sm font-bold text-white shadow-lg transition hover:bg-[#e03d00] disabled:opacity-60"
             >
-              Volver a Iniciar Sesión
-            </Link>
-          </div>
-        </form>
+              {procesando
+                ? 'Actualizando contraseña...'
+                : 'Restablecer Contraseña'}
+            </button>
+
+            <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
+              ¿Recordaste tu contraseña?{' '}
+              <Link
+                to="/login"
+                className="font-semibold text-[#00A8E8] no-underline hover:underline"
+              >
+                Volver a Iniciar Sesión
+              </Link>
+            </div>
+          </form>
+        )}
       </div>
     </main>
   )

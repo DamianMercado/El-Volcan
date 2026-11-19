@@ -4,6 +4,11 @@ import { useFormulario } from '../hooks/useFormulario.js'
 import { RegistrarCuenta } from '../service/sesionService.js'
 import { Campo } from '../components/ui/Campo.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoFormularioAutenticacion,
+  EsqueletoProceso,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const LONGITUD_MINIMA_CLAVE = 6
@@ -26,6 +31,7 @@ export function Registro() {
   const { valores, cambiar, reiniciar } = useFormulario(VALORES_INICIALES)
   const [alerta, setAlerta] = useState({ mensaje: '', tipo: '' })
   const [cargando, setCargando] = useState(false)
+  const cargandoVista = useEsperaEsqueleto()
 
   const mostrarAlerta = (mensaje, tipo = 'error') => {
     setAlerta({ mensaje, tipo })
@@ -130,7 +136,10 @@ export function Registro() {
           </p>
         </div>
 
-        <form onSubmit={enviarFormulario} className="flex flex-col gap-4">
+        {cargandoVista ? (
+          <EsqueletoFormularioAutenticacion filas={6} />
+        ) : (
+          <form onSubmit={enviarFormulario} className="flex flex-col gap-4">
           <BannerAlerta mensaje={alerta.mensaje} tipo={alerta.tipo} />
 
           {/* Sección 1: Datos Personales */}
@@ -267,6 +276,13 @@ export function Registro() {
             />
           </div>
 
+          {cargando && (
+            <EsqueletoProceso
+              etiqueta="Creando tu cuenta en El Volcán..."
+              variante="oscuro"
+            />
+          )}
+
           <button
             type="submit"
             disabled={cargando}
@@ -275,18 +291,19 @@ export function Registro() {
             {cargando ? 'Verificando credenciales...' : 'Crear Cuenta'}
           </button>
 
-          <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
-            <span>
-              ¿Ya tienes una cuenta?{' '}
-              <Link
-                to="/login"
-                className="font-semibold text-[#00A8E8] no-underline hover:underline"
-              >
-                Inicia sesión aquí
-              </Link>
-            </span>
-          </div>
-        </form>
+            <div className="mt-2 border-t border-white/10 pt-4 text-center text-xs text-white/75">
+              <span>
+                ¿Ya tienes una cuenta?{' '}
+                <Link
+                  to="/login"
+                  className="font-semibold text-[#00A8E8] no-underline hover:underline"
+                >
+                  Inicia sesión aquí
+                </Link>
+              </span>
+            </div>
+          </form>
+        )}
       </div>
     </main>
   )

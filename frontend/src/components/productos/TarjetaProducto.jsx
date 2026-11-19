@@ -9,7 +9,6 @@ export function TarjetaProducto({ producto, alAgregar }) {
             src={producto.imagen}
             alt={producto.nombre}
             className="max-h-full max-w-full object-contain"
-            loading="lazy"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-stone-400">

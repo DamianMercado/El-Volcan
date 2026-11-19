@@ -4,28 +4,40 @@ import { useCarrito } from '../context/Carrito.jsx'
 import { TarjetaProducto } from '../components/productos/TarjetaProducto.jsx'
 import { FiltroCategorias } from '../components/productos/FiltroCategorias.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoCatalogoProductos,
+  esperarEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 export function Productos() {
   const { agregarAlCarrito } = useCarrito()
   const [listaProductos, setListaProductos] = useState([])
+  const [cargando, setCargando] = useState(true)
   const [categoriaActiva, setCategoriaActiva] = useState('todos')
   const [avisoError, setAvisoError] = useState('')
 
   useEffect(() => {
     let montado = true
-    ListarProductos()
-      .then((datos) => {
+    setCargando(true)
+    Promise.all([ListarProductos(), esperarEsqueleto()])
+      .then(([datos]) => {
         if (montado && Array.isArray(datos)) {
           setListaProductos(datos)
           setAvisoError('')
         }
       })
-      .catch((err) => {
+      .catch(async (err) => {
+        await esperarEsqueleto()
         if (montado) {
           setAvisoError(
             err?.message ||
               'En este momento no pudimos mostrar los productos disponibles. Por favor, intenta nuevamente en unos minutos.'
           )
+        }
+      })
+      .finally(() => {
+        if (montado) {
+          setCargando(false)
         }
       })
     return () => {
@@ -65,15 +77,19 @@ export function Productos() {
           className="mx-auto mb-6 max-w-2xl"
         />
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {productosFiltrados.map((prod) => (
-            <TarjetaProducto
-              key={prod.codigo || prod.id}
-              producto={prod}
-              alAgregar={agregarAlCarrito}
-            />
-          ))}
-        </div>
+        {cargando ? (
+          <EsqueletoCatalogoProductos cantidad={12} />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {productosFiltrados.map((prod) => (
+              <TarjetaProducto
+                key={prod.codigo || prod.id}
+                producto={prod}
+                alAgregar={agregarAlCarrito}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   )

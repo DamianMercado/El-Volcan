@@ -8,11 +8,16 @@ import { estadoStock, formatearPesos } from '../utils/formato.js'
 import { CabeceraAdminNav } from '../components/admin/CabeceraAdminNav.jsx'
 import { AdminProductoTabla } from '../components/admin/AdminProductoTabla.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoTarjetasResumen,
+  EsqueletoTabla,
+  esperarEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 export function AdminProductosLista() {
   const location = useLocation()
   const [productos, setProductos] = useState([])
-  const [cargando, setCargando] = useState(false)
+  const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [avisoExito, setAvisoExito] = useState(
     () => location.state?.mensajeExito || ''
@@ -25,13 +30,14 @@ export function AdminProductosLista() {
   useEffect(() => {
     let montado = true
     setCargando(true)
-    ListarProductos()
-      .then((datos) => {
+    Promise.all([ListarProductos(), esperarEsqueleto()])
+      .then(([datos]) => {
         if (montado && Array.isArray(datos)) {
           setProductos(datos)
         }
       })
-      .catch((err) => {
+      .catch(async (err) => {
+        await esperarEsqueleto()
         if (montado)
           setError(
             err?.message ||
@@ -114,63 +120,67 @@ export function AdminProductosLista() {
         />
 
         {/* Tarjetas de Resumen de Catálogo */}
-        <div className="mb-5 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
-            <span className="text-[13px] text-[#5b6776]">
-              Productos activos
-            </span>
-            <strong className="text-2xl font-bold text-[#1d3963]">
-              {totalProductos}
-            </strong>
-            <small className="text-xs text-[#6e7a89]">
-              en catálogo de tienda
-            </small>
-          </div>
+        {cargando && productos.length === 0 ? (
+          <EsqueletoTarjetasResumen cantidad={4} />
+        ) : (
+          <div className="mb-5 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
+              <span className="text-[13px] text-[#5b6776]">
+                Productos activos
+              </span>
+              <strong className="text-2xl font-bold text-[#1d3963]">
+                {totalProductos}
+              </strong>
+              <small className="text-xs text-[#6e7a89]">
+                en catálogo de tienda
+              </small>
+            </div>
 
-          <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
-            <span className="text-[13px] text-[#5b6776]">
-              Unidades totales
-            </span>
-            <strong className="text-2xl font-bold text-[#1d3963]">
-              {totalUnidades}
-            </strong>
-            <small className="text-xs text-[#6e7a89]">
-              disponibles en inventario
-            </small>
-          </div>
+            <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
+              <span className="text-[13px] text-[#5b6776]">
+                Unidades totales
+              </span>
+              <strong className="text-2xl font-bold text-[#1d3963]">
+                {totalUnidades}
+              </strong>
+              <small className="text-xs text-[#6e7a89]">
+                disponibles en inventario
+              </small>
+            </div>
 
-          <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
-            <span className="text-[13px] text-[#5b6776]">
-              Valorización total
-            </span>
-            <strong className="text-2xl font-bold text-[#1d3963]">
-              {formatearPesos(valorTotal)}
-            </strong>
-            <small className="text-xs text-[#6e7a89]">
-              precio × stock actual
-            </small>
-          </div>
+            <div className="flex flex-col gap-1 rounded-[10px] border-l-[5px] border-[#2358b9] bg-white p-4 shadow-sm">
+              <span className="text-[13px] text-[#5b6776]">
+                Valorización total
+              </span>
+              <strong className="text-2xl font-bold text-[#1d3963]">
+                {formatearPesos(valorTotal)}
+              </strong>
+              <small className="text-xs text-[#6e7a89]">
+                precio × stock actual
+              </small>
+            </div>
 
-          <div
-            className={`flex flex-col gap-1 rounded-[10px] border-l-[5px] bg-white p-4 shadow-sm ${
-              conStockBajo > 0 ? 'border-[#d9534f]' : 'border-[#2358b9]'
-            }`}
-          >
-            <span className="text-[13px] text-[#5b6776]">
-              Alertas de reposición
-            </span>
-            <strong
-              className={`text-2xl font-bold ${
-                conStockBajo > 0 ? 'text-[#d9534f]' : 'text-[#1d3963]'
+            <div
+              className={`flex flex-col gap-1 rounded-[10px] border-l-[5px] bg-white p-4 shadow-sm ${
+                conStockBajo > 0 ? 'border-[#d9534f]' : 'border-[#2358b9]'
               }`}
             >
-              {conStockBajo}
-            </strong>
-            <small className="text-xs text-[#6e7a89]">
-              bajo el stock mínimo
-            </small>
+              <span className="text-[13px] text-[#5b6776]">
+                Alertas de reposición
+              </span>
+              <strong
+                className={`text-2xl font-bold ${
+                  conStockBajo > 0 ? 'text-[#d9534f]' : 'text-[#1d3963]'
+                }`}
+              >
+                {conStockBajo}
+              </strong>
+              <small className="text-xs text-[#6e7a89]">
+                bajo el stock mínimo
+              </small>
+            </div>
           </div>
-        </div>
+        )}
 
         <BannerAlerta
           mensaje={avisoExito}
@@ -224,9 +234,7 @@ export function AdminProductosLista() {
           </div>
 
           {cargando && productos.length === 0 ? (
-            <p className="py-8 text-center text-sm text-[#5b6776]">
-              Cargando catálogo de productos...
-            </p>
+            <EsqueletoTabla filas={6} columnas={6} conMiniatura />
           ) : (
             <AdminProductoTabla
               productos={productosFiltrados}

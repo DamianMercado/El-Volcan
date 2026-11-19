@@ -30,6 +30,8 @@ export const Navbar = () => {
   }, [location.pathname])
 
   const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
+  const esAdmin =
+    String(usuario?.rol || usuario?.perfil || '').toLowerCase() === 'admin'
 
   const irA = (ruta) => {
     setMenuMovilAbierto(false)
@@ -62,28 +64,47 @@ export const Navbar = () => {
           <span className="text-xl font-bold tracking-wide text-white">
             El Volcán
           </span>
-          <span className="hidden border-l border-white/20 pl-2.5 text-xs italic text-[#00A8E8] lg:inline">
+          <span className="hidden border-l border-white/20 pl-2.5 text-xs italic text-[#00A8E8] xl:inline">
             Gas a la puerta de tu hogar.
           </span>
         </a>
 
         {/* Grupo derecho Escritorio */}
-        <div className="hidden items-center gap-5 md:flex">
-          <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-3 md:flex">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => irA('/')}
-              className="cursor-pointer rounded-lg px-3.5 py-2 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-white/85 transition hover:bg-white/10 hover:text-white"
             >
               Inicio
             </button>
             <button
               type="button"
               onClick={() => irA('/productos')}
-              className="cursor-pointer rounded-lg px-3.5 py-2 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-white/85 transition hover:bg-white/10 hover:text-white"
             >
               Productos
             </button>
+
+            {esAdmin && (
+              <div className="mx-1.5 flex items-center gap-1.5 border-x border-white/15 px-3">
+                <button
+                  type="button"
+                  onClick={() => irA('/administradora')}
+                  className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-white/85 transition hover:bg-white/10 hover:text-white"
+                >
+                  Panel Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irA('/administradora/productos')}
+                  className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-white/85 transition hover:bg-white/10 hover:text-white"
+                >
+                  Catálogo Admin
+                </button>
+              </div>
+            )}
 
             <BotonCarritoNav
               cantidadTotal={cantidadTotal}
@@ -149,6 +170,24 @@ export const Navbar = () => {
             >
               Productos
             </button>
+            {esAdmin && (
+              <div className="flex flex-col gap-1 border-y border-white/15 py-2">
+                <button
+                  type="button"
+                  onClick={() => irA('/administradora')}
+                  className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+                >
+                  Panel Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => irA('/administradora/productos')}
+                  className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+                >
+                  Catálogo Admin
+                </button>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => irA('/creacion-pedido')}

@@ -6,6 +6,11 @@ import {
   obtenerUltimoPedido,
 } from '../service/pedidoService.js'
 import { EstadoVacio } from '../components/ui/EstadoVacio.jsx'
+import {
+  EsqueletoPago,
+  EsqueletoProceso,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 import { FormularioTarjetaWebpay } from '../components/pago/FormularioTarjetaWebpay.jsx'
 import { ControlesPruebaPago } from '../components/pago/ControlesPruebaPago.jsx'
 import { ResumenPagoLateral } from '../components/pago/ResumenPagoLateral.jsx'
@@ -53,6 +58,7 @@ export function Pago() {
 
   const [procesando, setProcesando] = useState(false)
   const [errorRechazo, setErrorRechazo] = useState(null)
+  const cargandoVista = useEsperaEsqueleto()
 
   const cambiarNumeroTarjeta = (valor) => {
     const soloNumeros = valor.replace(/\D/g, '').slice(0, 16)
@@ -163,57 +169,71 @@ export function Pago() {
         </span>
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg md:p-10 lg:flex-row">
-        <section className="flex-1">
-          <h1 className="mb-6 text-2xl font-extrabold text-slate-900">
-            Información de Pago
-          </h1>
+      {cargandoVista ? (
+        <EsqueletoPago />
+      ) : (
+        <div className="mx-auto flex max-w-5xl flex-col gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg md:p-10 lg:flex-row">
+          <section className="flex-1">
+            <h1 className="mb-6 text-2xl font-extrabold text-slate-900">
+              Información de Pago
+            </h1>
 
-          {errorRechazo && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-              <strong className="block font-bold">
-                Transacción Rechazada (Código {errorRechazo.codigo})
-              </strong>
-              <p className="mt-1 text-xs">{errorRechazo.mensaje}</p>
-              <button
-                type="button"
-                className="mt-2.5 cursor-pointer rounded-md bg-red-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-800"
-                onClick={() => setErrorRechazo(null)}
-              >
-                Reintentar pago
-              </button>
-            </div>
-          )}
+            {errorRechazo && (
+              <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <strong className="block font-bold">
+                  Transacción Rechazada (Código {errorRechazo.codigo})
+                </strong>
+                <p className="mt-1 text-xs">{errorRechazo.mensaje}</p>
+                <button
+                  type="button"
+                  className="mt-2.5 cursor-pointer rounded-md bg-red-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-800"
+                  onClick={() => setErrorRechazo(null)}
+                >
+                  Reintentar pago
+                </button>
+              </div>
+            )}
 
-          <FormularioTarjetaWebpay
-            email={email}
-            alCambiarEmail={setEmail}
-            nombreTitular={nombreTitular}
-            alCambiarTitular={setNombreTitular}
-            numeroTarjeta={numeroTarjeta}
-            alCambiarNumeroTarjeta={cambiarNumeroTarjeta}
-            expiracion={expiracion}
-            alCambiarExpiracion={setExpiracion}
-            cvv={cvv}
-            alCambiarCvv={setCvv}
-            total={pedido.total}
-            procesando={procesando}
-            alEnviar={procesarPago}
-          >
-            <ControlesPruebaPago
-              alCargarTarjetaPrueba={cargarTarjetaPrueba}
-              alSimularRechazo={simularRechazo}
+            {procesando && (
+              <div className="mb-5">
+                <EsqueletoProceso
+                  etiqueta="Procesando transacción con Webpay..."
+                  variante="claro"
+                  lineas={3}
+                />
+              </div>
+            )}
+
+            <FormularioTarjetaWebpay
+              email={email}
+              alCambiarEmail={setEmail}
+              nombreTitular={nombreTitular}
+              alCambiarTitular={setNombreTitular}
+              numeroTarjeta={numeroTarjeta}
+              alCambiarNumeroTarjeta={cambiarNumeroTarjeta}
+              expiracion={expiracion}
+              alCambiarExpiracion={setExpiracion}
+              cvv={cvv}
+              alCambiarCvv={setCvv}
+              total={pedido.total}
               procesando={procesando}
-            />
-          </FormularioTarjetaWebpay>
-        </section>
+              alEnviar={procesarPago}
+            >
+              <ControlesPruebaPago
+                alCargarTarjetaPrueba={cargarTarjetaPrueba}
+                alSimularRechazo={simularRechazo}
+                procesando={procesando}
+              />
+            </FormularioTarjetaWebpay>
+          </section>
 
-        <ResumenPagoLateral
-          tituloProducto={tituloProducto}
-          descripcionPedido={descripcionPedido}
-          total={pedido.total}
-        />
-      </div>
+          <ResumenPagoLateral
+            tituloProducto={tituloProducto}
+            descripcionPedido={descripcionPedido}
+            total={pedido.total}
+          />
+        </div>
+      )}
     </div>
   )
 }

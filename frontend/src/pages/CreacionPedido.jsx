@@ -6,6 +6,11 @@ import { crearNuevoPedido } from '../service/pedidoService.js'
 import { formatearPesos } from '../utils/formato.js'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
 import { EstadoVacio } from '../components/ui/EstadoVacio.jsx'
+import {
+  EsqueletoCreacionPedido,
+  EsqueletoProceso,
+  useEsperaEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 import { ItemCarrito } from '../components/pedido/ItemCarrito.jsx'
 import { TarjetaDireccionCuenta } from '../components/pedido/TarjetaDireccionCuenta.jsx'
 import { FormularioDespacho } from '../components/pedido/FormularioDespacho.jsx'
@@ -44,7 +49,9 @@ export function CreacionPedido() {
     Boolean(usuario?.direccion)
   )
   const [metodoPago, setMetodoPago] = useState('')
+  const [creandoPedido, setCreandoPedido] = useState(false)
   const [alerta, setAlerta] = useState({ mensaje: '', tipo: '' })
+  const cargandoVista = useEsperaEsqueleto()
 
   const confirmarCreacionPedido = async (e) => {
     e.preventDefault()
@@ -117,6 +124,9 @@ export function CreacionPedido() {
         direccion2.trim() ? `, Depto ${direccion2.trim()}` : ''
       }, ${comuna.trim()}`
     }
+
+    setCreandoPedido(true)
+    setAlerta({ mensaje: '', tipo: '' })
 
     try {
       // FLUJO 1: PAGAR AHORA (En línea)
@@ -204,6 +214,8 @@ export function CreacionPedido() {
           'No pudimos registrar tu pedido en este momento. Por favor, inténtalo nuevamente en unos instantes.',
         tipo: 'error',
       })
+    } finally {
+      setCreandoPedido(false)
     }
   }
 
@@ -225,114 +237,132 @@ export function CreacionPedido() {
           className="mb-5"
         />
 
-        {/* Sección: Lista de Productos */}
-        <div className="flex flex-1 flex-col">
-          <h2 className="mb-3 text-base font-bold text-[#00A8E8]">
-            {`Detalle de Productos (${carrito.length})`}
-          </h2>
+        {cargandoVista ? (
+          <EsqueletoCreacionPedido />
+        ) : (
+          <>
+            {/* Sección: Lista de Productos */}
+            <div className="flex flex-1 flex-col">
+              <h2 className="mb-3 text-base font-bold text-[#00A8E8]">
+                {`Detalle de Productos (${carrito.length})`}
+              </h2>
 
-          {carrito.length === 0 ? (
-            <EstadoVacio
-              descripcion="No hay productos en el pedido."
-              textoBoton="Ir al Catálogo de Productos"
-              alAccionar={() => navigate('/productos')}
-              variante="oscuro"
-            />
-          ) : (
-            <>
-              <div className="flex flex-col gap-2.5">
-                {carrito.map((item) => (
-                  <ItemCarrito
-                    key={item.producto.codigo}
-                    item={item}
-                    alAumentar={aumentarCantidad}
-                    alDisminuir={disminuirCantidad}
-                    alEliminar={eliminarDelCarrito}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-[#00A8E8]/30 bg-[#00A8E8]/10 px-4 py-3 text-white">
-                <span className="text-sm font-semibold">Total a Pagar:</span>
-                <strong className="text-xl font-extrabold text-[#00A8E8]">
-                  {formatearPesos(total)}
-                </strong>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => navigate('/productos')}
-                className="mt-3 cursor-pointer self-start text-xs font-semibold text-[#00A8E8] transition hover:underline"
-              >
-                ← Seguir agregando más productos
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Sección: Datos de Entrega y Pago */}
-        {carrito.length > 0 && (
-          <div className="mt-8 border-t border-white/15 pt-6">
-            <h2 className="mb-4 text-base font-bold text-[#00A8E8]">
-              Datos de Despacho y Contacto
-            </h2>
-
-            <form
-              onSubmit={confirmarCreacionPedido}
-              className="flex flex-col gap-4"
-            >
-              <TarjetaDireccionCuenta
-                usuario={usuario}
-                usarDirCuenta={usarDirCuenta}
-                alCambiarUsarDirCuenta={setUsarDirCuenta}
-              />
-
-              {(!usarDirCuenta || !usuario?.direccion) && (
-                <FormularioDespacho
-                  nombreCliente={nombreCliente}
-                  alCambiarNombre={setNombreCliente}
-                  telefonoCliente={telefonoCliente}
-                  alCambiarTelefono={setTelefonoCliente}
-                  direccion1={direccion1}
-                  alCambiarDireccion1={setDireccion1}
-                  direccion2={direccion2}
-                  alCambiarDireccion2={setDireccion2}
-                  comuna={comuna}
-                  alCambiarComuna={setComuna}
+              {carrito.length === 0 ? (
+                <EstadoVacio
+                  descripcion="No hay productos en el pedido."
+                  textoBoton="Ir al Catálogo de Productos"
+                  alAccionar={() => navigate('/productos')}
+                  variante="oscuro"
                 />
+              ) : (
+                <>
+                  <div className="flex flex-col gap-2.5">
+                    {carrito.map((item) => (
+                      <ItemCarrito
+                        key={item.producto.codigo}
+                        item={item}
+                        alAumentar={aumentarCantidad}
+                        alDisminuir={disminuirCantidad}
+                        alEliminar={eliminarDelCarrito}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between rounded-xl border border-[#00A8E8]/30 bg-[#00A8E8]/10 px-4 py-3 text-white">
+                    <span className="text-sm font-semibold">
+                      Total a Pagar:
+                    </span>
+                    <strong className="text-xl font-extrabold text-[#00A8E8]">
+                      {formatearPesos(total)}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate('/productos')}
+                    className="mt-3 cursor-pointer self-start text-xs font-semibold text-[#00A8E8] transition hover:underline"
+                  >
+                    ← Seguir agregando más productos
+                  </button>
+                </>
               )}
+            </div>
 
-              {/* Observación para el repartidor */}
-              <div className="mt-1 flex flex-col gap-1.5">
-                <label
-                  htmlFor="observacion-pedido"
-                  className="text-xs font-semibold text-white/90"
+            {/* Sección: Datos de Entrega y Pago */}
+            {carrito.length > 0 && (
+              <div className="mt-8 border-t border-white/15 pt-6">
+                <h2 className="mb-4 text-base font-bold text-[#00A8E8]">
+                  Datos de Despacho y Contacto
+                </h2>
+
+                <form
+                  onSubmit={confirmarCreacionPedido}
+                  className="flex flex-col gap-4"
                 >
-                  Indicaciones para el repartidor (Opcional)
-                </label>
-                <input
-                  type="text"
-                  id="observacion-pedido"
-                  placeholder="Ej: Portón negro, tocar timbre blanco, dejar en conserjería"
-                  value={observacion}
-                  onChange={(e) => setObservacion(e.target.value)}
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-white/45 focus:border-[#00A8E8] focus:outline-none"
-                />
+                  <TarjetaDireccionCuenta
+                    usuario={usuario}
+                    usarDirCuenta={usarDirCuenta}
+                    alCambiarUsarDirCuenta={setUsarDirCuenta}
+                  />
+
+                  {(!usarDirCuenta || !usuario?.direccion) && (
+                    <FormularioDespacho
+                      nombreCliente={nombreCliente}
+                      alCambiarNombre={setNombreCliente}
+                      telefonoCliente={telefonoCliente}
+                      alCambiarTelefono={setTelefonoCliente}
+                      direccion1={direccion1}
+                      alCambiarDireccion1={setDireccion1}
+                      direccion2={direccion2}
+                      alCambiarDireccion2={setDireccion2}
+                      comuna={comuna}
+                      alCambiarComuna={setComuna}
+                    />
+                  )}
+
+                  {/* Observación para el repartidor */}
+                  <div className="mt-1 flex flex-col gap-1.5">
+                    <label
+                      htmlFor="observacion-pedido"
+                      className="text-xs font-semibold text-white/90"
+                    >
+                      Indicaciones para el repartidor (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      id="observacion-pedido"
+                      placeholder="Ej: Portón negro, tocar timbre blanco, dejar en conserjería"
+                      value={observacion}
+                      onChange={(e) => setObservacion(e.target.value)}
+                      className="w-full rounded-lg border border-white/20 bg-white/10 px-3.5 py-2.5 text-sm text-white placeholder-white/45 focus:border-[#00A8E8] focus:outline-none"
+                    />
+                  </div>
+
+                  <SelectorMetodoPago
+                    metodoPago={metodoPago}
+                    alCambiarMetodoPago={setMetodoPago}
+                  />
+
+                  {creandoPedido && (
+                    <EsqueletoProceso
+                      etiqueta="Registrando tu pedido de gas..."
+                      variante="oscuro"
+                    />
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={creandoPedido}
+                    className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-[#e03d00] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {creandoPedido
+                      ? 'Registrando pedido...'
+                      : `Confirmar y Crear Pedido (${formatearPesos(total)})`}
+                  </button>
+                </form>
               </div>
-
-              <SelectorMetodoPago
-                metodoPago={metodoPago}
-                alCambiarMetodoPago={setMetodoPago}
-              />
-
-              <button
-                type="submit"
-                className="mt-2 w-full cursor-pointer rounded-xl bg-[#FF4500] py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-[#e03d00]"
-              >
-                {`Confirmar y Crear Pedido (${formatearPesos(total)})`}
-              </button>
-            </form>
-          </div>
+            )}
+          </>
         )}
       </div>
     </main>

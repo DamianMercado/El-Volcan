@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { InsigniaEstado } from '../ui/InsigniaEstado.jsx'
+import { EsqueletoSolicitudesStock } from '../ui/Esqueleto.jsx'
 
 export function SolicitarStock({
   productos,
   solicitudes,
+  cargandoSolicitudes = false,
   codigo,
   alCambiarCodigo,
   alSolicitar,
@@ -118,40 +120,46 @@ export function SolicitarStock({
         <h3 className="mb-3.5 text-base font-bold text-[#1d3963]">
           Solicitudes realizadas
         </h3>
-        {solicitudes.length === 0 && (
-          <p className="py-5 text-center text-sm text-[#7a8696]">
-            Aún no hay solicitudes.
-          </p>
-        )}
-        <div className="flex flex-col gap-2">
-          {solicitudes.map((s) => (
-            <div
-              className="flex items-center justify-between gap-2.5 rounded-lg border border-[#e3eaf3] bg-[#fafbfd] px-3.5 py-2.5"
-              key={s.id}
-            >
-              <div className="flex flex-col gap-0.5">
-                <strong className="text-sm font-semibold text-slate-800">
-                  {s.cantidad} × {nombreDe(s.codigo)}
-                </strong>
-                <small className="text-xs text-[#6e7a89]">
-                  {s.fecha}
-                  {s.nota && ` · ${s.nota}`}
-                </small>
-              </div>
-              {s.estado === 'Pendiente' ? (
-                <button
-                  type="button"
-                  className="cursor-pointer rounded-md border border-[#2358b9] bg-white px-3 py-1.5 text-xs font-semibold text-[#2358b9] transition hover:bg-[#eef4fc]"
-                  onClick={() => alRecibir(s.id)}
+        {cargandoSolicitudes ? (
+          <EsqueletoSolicitudesStock cantidad={3} />
+        ) : (
+          <>
+            {solicitudes.length === 0 && (
+              <p className="py-5 text-center text-sm text-[#7a8696]">
+                Aún no hay solicitudes.
+              </p>
+            )}
+            <div className="flex flex-col gap-2">
+              {solicitudes.map((s) => (
+                <div
+                  className="flex items-center justify-between gap-2.5 rounded-lg border border-[#e3eaf3] bg-[#fafbfd] px-3.5 py-2.5"
+                  key={s.id}
                 >
-                  Marcar recibida
-                </button>
-              ) : (
-                <InsigniaEstado variante="stock-ok">Recibida</InsigniaEstado>
-              )}
+                  <div className="flex flex-col gap-0.5">
+                    <strong className="text-sm font-semibold text-slate-800">
+                      {s.cantidad} × {nombreDe(s.codigo)}
+                    </strong>
+                    <small className="text-xs text-[#6e7a89]">
+                      {s.fecha}
+                      {s.nota && ` · ${s.nota}`}
+                    </small>
+                  </div>
+                  {s.estado === 'Pendiente' ? (
+                    <button
+                      type="button"
+                      className="cursor-pointer rounded-md border border-[#2358b9] bg-white px-3 py-1.5 text-xs font-semibold text-[#2358b9] transition hover:bg-[#eef4fc]"
+                      onClick={() => alRecibir(s.id)}
+                    >
+                      Marcar recibida
+                    </button>
+                  ) : (
+                    <InsigniaEstado variante="stock-ok">Recibida</InsigniaEstado>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </div>
   )

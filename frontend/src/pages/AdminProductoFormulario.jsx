@@ -18,6 +18,12 @@ import { CabeceraAdminNav } from '../components/admin/CabeceraAdminNav.jsx'
 import { Campo } from '../components/ui/Campo.jsx'
 import { Miniatura } from '../components/ui/Miniatura.jsx'
 import { BannerAlerta } from '../components/ui/BannerAlerta.jsx'
+import {
+  EsqueletoFormularioProducto,
+  EsqueletoProceso,
+  DURACION_ESQUELETO_MS,
+  esperarEsqueleto,
+} from '../components/ui/Esqueleto.jsx'
 
 export function AdminProductoFormulario() {
   const { id } = useParams()
@@ -27,30 +33,43 @@ export function AdminProductoFormulario() {
   const { valores, cambiar, reiniciar } = useFormulario(
     VALORES_INICIALES_PRODUCTO
   )
-  const [cargando, setCargando] = useState(esEdicion)
+  const [cargando, setCargando] = useState(
+    () => esEdicion || DURACION_ESQUELETO_MS > 0
+  )
   const [guardando, setGuardando] = useState(false)
   const [eliminando, setEliminando] = useState(false)
   const [confirmandoEliminar, setConfirmandoEliminar] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    let montado = true
+
     if (!esEdicion) {
       reiniciar(VALORES_INICIALES_PRODUCTO)
-      setCargando(false)
-      return
+      if (DURACION_ESQUELETO_MS > 0) {
+        setCargando(true)
+        esperarEsqueleto().then(() => {
+          if (montado) setCargando(false)
+        })
+      } else {
+        setCargando(false)
+      }
+      return () => {
+        montado = false
+      }
     }
 
-    let montado = true
     setCargando(true)
     setError(null)
 
-    ObtenerProducto(id)
-      .then((producto) => {
+    Promise.all([ObtenerProducto(id), esperarEsqueleto()])
+      .then(([producto]) => {
         if (montado && producto) {
           reiniciar(aValoresFormularioProducto(producto))
         }
       })
-      .catch((err) => {
+      .catch(async (err) => {
+        await esperarEsqueleto()
         if (montado) {
           setError(
             err?.message ||
@@ -144,11 +163,7 @@ export function AdminProductoFormulario() {
         />
 
         {cargando ? (
-          <div className="rounded-[10px] bg-white p-10 text-center shadow-sm">
-            <p className="text-sm text-[#5b6776]">
-              Cargando información del producto...
-            </p>
-          </div>
+          <EsqueletoFormularioProducto />
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Columna Principal: Formulario (2/3) */}
@@ -165,6 +180,19 @@ export function AdminProductoFormulario() {
                 variante="claro"
                 className="mb-4"
               />
+
+              {(guardando || eliminando) && (
+                <div className="mb-4">
+                  <EsqueletoProceso
+                    etiqueta={
+                      eliminando
+                        ? 'Eliminando producto del catálogo...'
+                        : 'Guardando información del producto...'
+                    }
+                    variante="claro"
+                  />
+                </div>
+              )}
 
               <form onSubmit={enviar} className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -47,7 +47,7 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
     expect(screen.getAllByText("Registrarse").length).toBeGreaterThan(0);
   });
 
-  it("13. Navbar: Renderiza el nombre del cliente y botón 'Salir' cuando hay sesión, y al hacer clic cierra la sesión en el DOM", () => {
+  it("13. Navbar: Renderiza el nombre del cliente y botón 'Cerrar sesión' cuando hay sesión, y al hacer clic cierra la sesión en el DOM", () => {
     guardarSesion({
       nombres: "Eduardo",
       apellidos: "Pérez",
@@ -65,10 +65,10 @@ describe("Pruebas Unitarias - Comportamiento de Componentes y Manipulación del 
 
     expect(screen.getByText("Eduardo Pérez")).toBeInTheDocument();
 
-    const btnSalir = screen.getByRole("button", { name: "Salir" });
-    expect(btnSalir).toBeInTheDocument();
+    const btnCerrarSesion = screen.getByRole("button", { name: "Cerrar sesión" });
+    expect(btnCerrarSesion).toBeInTheDocument();
 
-    fireEvent.click(btnSalir);
+    fireEvent.click(btnCerrarSesion);
 
     expect(screen.queryByText("Eduardo Pérez")).not.toBeInTheDocument();
     expect(screen.getAllByText("Ingresar").length).toBeGreaterThan(0);
