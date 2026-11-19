@@ -1,50 +1,68 @@
 package com.elvolcan.ms_usuario.model;
 
 import com.elvolcan.ms_usuario.enums.RolUsuario;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "usuario")
+@Document(collection = "usuario")
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
     private Long id;
 
-    @Column(name = "nombre", nullable = false, length = 100)
+    @Field("nombre")
     private String nombre;
 
-    @Column(name = "apellido", nullable = false, length = 100)
+    @Field("apellido")
     private String apellido;
 
-    @Column(name = "password", nullable = false, length = 100)
+    @Field("password")
     private String password;
 
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    @Indexed(unique = true)
+    @Field("email")
     private String email;
 
-    @Column(name = "rut", nullable = false, unique = true, length = 15)
+    @Indexed(unique = true)
+    @Field("rut")
     private String rut;
 
-    @Column(name = "telefono", length = 30)
+    @Field("telefono")
     private String telefono;
 
-    @Column(name = "direccion", length = 200)
+    @Field("direccion")
     private String direccion;
 
-    @Column(name = "comuna", length = 100)
+    @Field("comuna")
     private String comuna;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "rol", nullable = false, length = 30)
+    @Field("rol")
     private RolUsuario rol;
+
+    @Field("tipo_cliente")
+    private String tipoCliente;
+
+    @Field("id_zona")
+    private Integer idZona;
+
+    @Field("patente_camion")
+    private String patenteCamion;
+
+    @Field("ubicacion_actual")
+    private Map<String, Object> ubicacionActual;
+
+    @Field("activo")
+    private Boolean activo;
 }
