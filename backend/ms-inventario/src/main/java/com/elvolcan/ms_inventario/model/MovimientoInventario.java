@@ -2,11 +2,14 @@ package com.elvolcan.ms_inventario.model;
 
 import com.elvolcan.ms_inventario.enums.EstadoMovimiento;
 import com.elvolcan.ms_inventario.enums.TipoMovimiento;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -14,41 +17,37 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "movimiento_inventario")
+@Document(collection = "movimiento_inventario")
 public class MovimientoInventario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_movimiento")
     private Long id;
 
-    @Column(name = "id_inventario", nullable = false)
+    @Field("id_inventario")
     private Long idInventario;
 
-    @Column(name = "codigo_producto", nullable = false, length = 30)
+    @Indexed
+    @Field("codigo_producto")
     private String codigoProducto;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_movimiento", nullable = false, length = 40)
+    @Field("tipo_movimiento")
     private TipoMovimiento tipoMovimiento;
 
-    @Column(name = "cantidad", nullable = false)
+    @Field("cantidad")
     private Integer cantidad;
 
-    @Column(name = "stock_anterior", nullable = false)
+    @Field("stock_anterior")
     private Integer stockAnterior;
 
-    @Column(name = "stock_nuevo", nullable = false)
+    @Field("stock_nuevo")
     private Integer stockNuevo;
 
-    @Column(name = "observacion", length = 250)
+    @Field("observacion")
     private String observacion;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_movimiento", nullable = false, length = 30)
+    @Field("estado_movimiento")
     private EstadoMovimiento estadoMovimiento;
 
-    @Column(name = "fecha_movimiento", nullable = false)
+    @Field("fecha_movimiento")
     private LocalDateTime fechaMovimiento;
 }

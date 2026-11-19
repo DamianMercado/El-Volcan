@@ -1,11 +1,14 @@
 package com.elvolcan.ms_inventario.model;
 
 import com.elvolcan.ms_inventario.enums.EstadoStock;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -13,34 +16,31 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "inventario")
+@Document(collection = "inventario")
 public class Inventario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_inventario")
     private Long id;
 
-    @Column(name = "codigo_producto", nullable = false, unique = true, length = 30)
+    @Indexed(unique = true)
+    @Field("codigo_producto")
     private String codigoProducto;
 
-    @Column(name = "nombre_producto", nullable = false, length = 150)
+    @Field("nombre_producto")
     private String nombreProducto;
 
-    @Column(name = "stock_actual", nullable = false)
+    @Field("stock_actual")
     private Integer stockActual;
 
-    @Column(name = "stock_minimo", nullable = false)
+    @Field("stock_minimo")
     private Integer stockMinimo;
 
-    @Column(name = "ubicacion_bodega", length = 100)
+    @Field("ubicacion_bodega")
     private String ubicacionBodega;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_stock", nullable = false, length = 30)
+    @Field("estado_stock")
     private EstadoStock estadoStock;
 
-    @Column(name = "fecha_actualizacion", nullable = false)
+    @Field("fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 }
