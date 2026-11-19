@@ -1,44 +1,58 @@
 package com.elvolcan.ms_catalogo.model;
 
 import com.elvolcan.ms_catalogo.enums.EstadoProducto;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "producto_catalogo")
+@Document(collection = "producto_catalogo")
 public class ProductoCatalogo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_producto")
     private Long id;
 
-    @Column(name = "codigo", nullable = false, unique = true, length = 30)
+    @Indexed(unique = true)
+    @Field("codigo")
     private String codigo;
 
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Field("nombre")
     private String nombre;
 
-    @Column(name = "descripcion", length = 300)
+    @Field("descripcion")
     private String descripcion;
 
-    @Column(name = "precio", nullable = false)
+    @Field("precio")
     private Double precio;
 
-    @Column(name = "categoria", nullable = false, length = 60)
+    @Field("precios")
+    private Map<String, Integer> precios;
+
+    @Field("es_cilindro")
+    private Boolean esCilindro;
+
+    @Field("formato_kg")
+    private Integer formatoKg;
+
+    @Field("unidad")
+    private String unidad;
+
+    @Field("categoria")
     private String categoria;
 
-    @Column(name = "imagen", nullable = false, length = 250)
+    @Field("imagen")
     private String imagen;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false, length = 30)
+    @Field("estado")
     private EstadoProducto estado;
 }
