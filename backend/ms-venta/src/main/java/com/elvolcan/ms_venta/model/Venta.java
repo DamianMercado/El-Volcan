@@ -1,82 +1,92 @@
 package com.elvolcan.ms_venta.model;
 
 import com.elvolcan.ms_venta.enums.EstadoVenta;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "venta")
+@Document(collection = "venta")
 public class Venta {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_venta")
     private Long id;
 
-    @Column(name = "codigo_venta", nullable = false, unique = true, length = 30)
+    @Indexed(unique = true)
+    @Field("codigo_venta")
     private String codigoVenta;
 
-    @Column(name = "id_usuario")
+    @Field("id_usuario")
     private Long idUsuario;
 
-    @Column(name = "cliente", nullable = false, length = 150)
+    @Field("cliente")
     private String cliente;
 
-    @Column(name = "rut", length = 20)
+    @Field("rut")
     private String rut;
 
-    @Column(name = "email", length = 100)
+    @Field("email")
     private String email;
 
-    @Column(name = "telefono", length = 30)
+    @Field("telefono")
     private String telefono;
 
-    @Column(name = "direccion", nullable = false, length = 250)
+    @Field("direccion")
     private String direccion;
 
-    @Column(name = "comuna", length = 100)
+    @Field("comuna")
     private String comuna;
 
-    @Column(name = "observacion", length = 250)
+    @Field("observacion")
     private String observacion;
 
-    @Column(name = "detalle", length = 300)
+    @Field("detalle")
     private String detalle;
 
-    @Column(name = "total", nullable = false)
+    @Field("total")
     private Double total;
 
-    @Column(name = "metodo_pago", nullable = false, length = 40)
+    @Field("metodo_pago")
     private String metodoPago;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_venta", nullable = false, length = 30)
+    @Field("estado_venta")
     private EstadoVenta estadoVenta;
 
-    @Column(name = "estado_pago", nullable = false, length = 30)
+    @Field("estado_pago")
     private String estadoPago;
 
-    @Column(name = "id_pago")
+    @Field("id_pago")
     private Long idPago;
 
-    @Column(name = "repartidor", length = 100)
+    @Field("repartidor")
     private String repartidor;
 
-    @Column(name = "fecha_venta", nullable = false)
+    @Field("fecha_venta")
     private LocalDateTime fechaVenta;
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Field("id_zona")
+    private Integer idZona;
+
+    @Field("entrega")
+    private Map<String, Object> entrega;
+
+    @Field("auditoria")
+    private List<Map<String, Object>> auditoria;
+
+    @Field("items")
     @Builder.Default
     private List<DetalleVenta> items = new ArrayList<>();
 }
