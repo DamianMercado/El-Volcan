@@ -497,4 +497,38 @@ export function EsqueletoSeguimiento() {
   )
 }
 
+export function EsqueletoRepartidorMovil() {
+  return (
+    <div
+      role="status"
+      aria-label="Cargando pedidos de reparto"
+      className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 pt-4"
+    >
+      <div className="grid grid-cols-3 gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <BloqueEsqueleto key={i} className="h-16 w-full rounded-2xl" />
+        ))}
+      </div>
+      <BloqueEsqueleto className="h-11 w-full rounded-xl" />
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs"
+        >
+          <div className="flex items-center justify-between">
+            <BloqueEsqueleto className="h-6 w-28 rounded-lg" />
+            <BloqueEsqueleto className="h-5 w-20 rounded-full" />
+          </div>
+          <BloqueEsqueleto className="h-5 w-4/5" />
+          <BloqueEsqueleto className="h-10 w-full rounded-xl" />
+          <div className="flex items-center justify-between pt-1">
+            <BloqueEsqueleto className="h-6 w-32 rounded-full" />
+            <BloqueEsqueleto className="h-4 w-24" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default BloqueEsqueleto

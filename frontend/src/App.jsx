@@ -16,6 +16,7 @@ import { RecuperarContrasena } from './pages/RecuperarContrasena.jsx'
 import { Administradora } from './pages/Administradora.jsx'
 import { AdminProductosLista } from './pages/AdminProductosLista.jsx'
 import { AdminProductoFormulario } from './pages/AdminProductoFormulario.jsx'
+import { Repartidor } from './pages/Repartidor.jsx'
 
 export function App() {
   return (
@@ -23,6 +24,12 @@ export function App() {
       <CarritoProvider>
         <BrowserRouter>
           <Routes>
+            {/* Ruta aislada Mobile-First exclusiva para Repartidores (sin Navbar/Footer/Tienda) */}
+            <Route element={<RutaPrivada roles={['repartidor']} />}>
+              <Route path="/repartidor" element={<Repartidor />} />
+              <Route path="/repartidor/:id" element={<Repartidor />} />
+            </Route>
+
             <Route element={<Layout />}>
               {/* Rutas públicas de tienda y pago */}
               <Route path="/" element={<Inicio />} />
