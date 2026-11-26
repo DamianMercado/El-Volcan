@@ -8,6 +8,7 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +27,11 @@ public class MongoVentaConfig {
     private static final Logger log = LoggerFactory.getLogger(MongoVentaConfig.class);
 
     @Bean
-    public BeforeConvertCallback<Venta> asignarIdSecuencialVenta(MongoTemplate mongoTemplate) {
+    public BeforeConvertCallback<Venta> asignarIdSecuencialVenta(ObjectProvider<MongoTemplate> mongoTemplateProvider) {
         return (entidad, coleccion) -> {
             if (entidad.getId() == null) {
                 Query query = new Query().with(Sort.by(Sort.Direction.DESC, "_id")).limit(1);
-                Venta ultima = mongoTemplate.findOne(query, Venta.class, coleccion);
+                Venta ultima = mongoTemplateProvider.getObject().findOne(query, Venta.class, coleccion);
                 long siguienteId = (ultima != null && ultima.getId() != null) ? ultima.getId() + 1L : 1L;
                 entidad.setId(siguienteId);
             }

@@ -6,6 +6,7 @@ import com.elvolcan.ms_catalogo.repository.ProductoCatalogoRepository;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,11 @@ public class MongoCatalogoConfig {
     private static final Logger log = LoggerFactory.getLogger(MongoCatalogoConfig.class);
 
     @Bean
-    public BeforeConvertCallback<ProductoCatalogo> asignarIdSecuencialCatalogo(MongoTemplate mongoTemplate) {
+    public BeforeConvertCallback<ProductoCatalogo> asignarIdSecuencialCatalogo(ObjectProvider<MongoTemplate> mongoTemplateProvider) {
         return (entidad, coleccion) -> {
             if (entidad.getId() == null) {
                 Query query = new Query().with(Sort.by(Sort.Direction.DESC, "_id")).limit(1);
-                ProductoCatalogo ultimo = mongoTemplate.findOne(query, ProductoCatalogo.class, coleccion);
+                ProductoCatalogo ultimo = mongoTemplateProvider.getObject().findOne(query, ProductoCatalogo.class, coleccion);
                 long siguienteId = (ultimo != null && ultimo.getId() != null) ? ultimo.getId() + 1L : 1L;
                 entidad.setId(siguienteId);
             }
