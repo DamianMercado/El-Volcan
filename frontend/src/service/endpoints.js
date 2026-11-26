@@ -69,6 +69,7 @@ export const Rutas = {
   venta: (id) => `${Variables.apiUrl}/ventas/${id}`,
   ventaRepartidor: (id, repartidor) =>
     `${Variables.apiUrl}/ventas/${id}/asignar-repartidor?repartidor=${encodeURIComponent(repartidor)}`,
+  ventaEntregar: (id) => `${Variables.apiUrl}/ventas/${id}/entregar`,
   pagos: `${Variables.apiUrl}/pagos`,
   repartidores: `${Variables.apiUrl}/usuarios/rol/REPARTIDOR`,
 }

@@ -1,9 +1,19 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useSesion } from '../../context/Sesion.jsx'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 
 export const Layout = () => {
   const { pathname } = useLocation()
+  const { usuario } = useSesion()
+
+  const esRepartidor =
+    String(usuario?.rol || usuario?.perfil || '').toLowerCase() === 'repartidor'
+
+  // El repartidor opera únicamente en su ruta aislada (/repartidor), sin acceso a la tienda
+  if (esRepartidor) {
+    return <Navigate to="/repartidor" replace />
+  }
 
   // En la pasarela de Webpay Plus (/pago) se muestra la interfaz externa oficial de Transbank
   if (pathname === '/pago') {

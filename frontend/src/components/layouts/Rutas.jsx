@@ -20,7 +20,7 @@ export const RutaPrivada = ({ roles = [], children }) => {
     const rolUsuario = String(usuario.rol || usuario.perfil || '').toLowerCase()
     const rolesPermitidos = roles.map((r) => String(r).toLowerCase())
     if (!rolesPermitidos.includes(rolUsuario)) {
-      return <Navigate to="/" replace />
+      return <Navigate to={rutaSegunRol(rolUsuario)} replace />
     }
   }
 

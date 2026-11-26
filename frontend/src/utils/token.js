@@ -100,6 +100,8 @@ export function cerrarSesion() {
 }
 
 export function rutaSegunRol(rol) {
-  if (String(rol || '').toLowerCase() === 'admin') return '/administradora'
+  const norm = String(rol || '').toLowerCase()
+  if (norm === 'admin') return '/administradora'
+  if (norm === 'repartidor') return '/repartidor'
   return '/'
 }

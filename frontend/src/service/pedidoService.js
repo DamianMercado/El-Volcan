@@ -434,3 +434,22 @@ export async function asignarRepartidorPedido(idPedido, nombreRepartidor) {
 
   return normalizarVenta(datos)
 }
+
+export async function marcarPedidoEntregado(idPedido) {
+  const respuesta = await realizarPeticion(Rutas.ventaEntregar(idPedido), {
+    method: 'PUT',
+    headers: obtenerHeadersAuth(false),
+  })
+
+  const datos = await respuesta.json().catch(() => ({}))
+  if (!respuesta.ok) {
+    throw new Error(
+      obtenerMensaje(
+        datos.mensaje || datos.message,
+        'No pudimos completar la entrega en este momento. Inténtalo nuevamente.',
+      ),
+    )
+  }
+
+  return normalizarVenta(datos)
+}
