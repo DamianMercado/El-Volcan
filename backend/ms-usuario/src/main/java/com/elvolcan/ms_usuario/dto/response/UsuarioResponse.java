@@ -21,4 +21,5 @@ public class UsuarioResponse {
     private String direccion;
     private String comuna;
     private RolUsuario rol;
+    private String patenteCamion;
 }
