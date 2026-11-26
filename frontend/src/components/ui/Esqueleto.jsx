@@ -449,4 +449,52 @@ export function EsqueletoProceso({
   )
 }
 
+export function EsqueletoSeguimiento() {
+  return (
+    <div
+      role="status"
+      aria-label="Cargando seguimiento de pedidos"
+      className="mx-auto flex w-full max-w-6xl flex-col gap-6"
+    >
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-1 flex-col gap-2.5">
+            <BloqueEsqueleto className="h-4 w-56" />
+            <BloqueEsqueleto className="h-8 w-80 max-w-full" />
+            <BloqueEsqueleto className="h-4 w-96 max-w-full" />
+          </div>
+          <BloqueEsqueleto className="h-24 w-64 shrink-0 rounded-2xl" />
+        </div>
+        <div className="mt-6 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <BloqueEsqueleto className="h-9 w-9 shrink-0 rounded-full" />
+              <div className="flex flex-1 flex-col gap-1.5">
+                <BloqueEsqueleto className="h-4 w-28" />
+                <BloqueEsqueleto className="h-3 w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-7 xl:col-span-8">
+          <BloqueEsqueleto className="mb-4 h-6 w-40" />
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <BloqueEsqueleto key={i} className="h-14 w-full rounded-xl" />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-5 lg:col-span-5 xl:col-span-4">
+          <BloqueEsqueleto className="h-56 w-full rounded-2xl" />
+          <BloqueEsqueleto className="h-44 w-full rounded-2xl" />
+          <BloqueEsqueleto className="h-40 w-full rounded-2xl" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default BloqueEsqueleto

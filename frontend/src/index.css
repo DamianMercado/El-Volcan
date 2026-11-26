@@ -66,3 +66,66 @@
   background-size: 400% 100%;
   animation: destello-esqueleto 1.4s ease infinite;
 }
+
+@keyframes respiracion-estado-azul {
+  0%, 100% {
+    background-color: rgba(35, 88, 185, 1);
+    color: #ffffff;
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(35, 88, 185, 0.55);
+  }
+  50% {
+    background-color: rgba(35, 88, 185, 0.12);
+    color: #2358b9;
+    opacity: 0.35;
+    transform: scale(1.06);
+    box-shadow: 0 0 0 10px rgba(35, 88, 185, 0);
+  }
+}
+
+@keyframes respiracion-estado-verde {
+  0%, 100% {
+    background-color: rgba(16, 185, 129, 1);
+    color: #ffffff;
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+  }
+  50% {
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    opacity: 0.35;
+    transform: scale(1.06);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes respiracion-estado-rojo {
+  0%, 100% {
+    background-color: rgba(220, 38, 38, 0.95);
+    color: #ffffff;
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+    opacity: 0.35;
+    transform: scale(1.06);
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+
+.animacion-respiracion-azul {
+  animation: respiracion-estado-azul 3.6s ease-in-out infinite;
+}
+
+.animacion-respiracion-verde {
+  animation: respiracion-estado-verde 3.6s ease-in-out infinite;
+}
+
+.animacion-respiracion-rojo {
+  animation: respiracion-estado-rojo 3.6s ease-in-out infinite;
+}

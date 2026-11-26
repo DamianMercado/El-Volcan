@@ -96,6 +96,15 @@ export function PedidoCreado() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 print:hidden">
           <button
             type="button"
+            className="cursor-pointer rounded-lg bg-[#0A2540] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#13385f]"
+            onClick={() =>
+              navigate(`/seguimiento/${pedido.id}`, { state: { pedido } })
+            }
+          >
+            Seguir mi Pedido
+          </button>
+          <button
+            type="button"
             className="cursor-pointer rounded-lg bg-[#2358b9] px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#1b4592]"
             onClick={descargarComprobante}
           >

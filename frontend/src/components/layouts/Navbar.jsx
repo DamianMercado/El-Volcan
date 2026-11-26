@@ -86,6 +86,13 @@ export const Navbar = () => {
             >
               Productos
             </button>
+            <button
+              type="button"
+              onClick={() => irA('/seguimiento')}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Seguimiento
+            </button>
 
             {esAdmin && (
               <div className="mx-1.5 flex items-center gap-1.5 border-x border-white/15 px-3">
@@ -169,6 +176,13 @@ export const Navbar = () => {
               className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
             >
               Productos
+            </button>
+            <button
+              type="button"
+              onClick={() => irA('/seguimiento')}
+              className="w-full cursor-pointer rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-white"
+            >
+              Seguimiento
             </button>
             {esAdmin && (
               <div className="flex flex-col gap-1 border-y border-white/15 py-2">

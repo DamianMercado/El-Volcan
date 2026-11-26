@@ -9,6 +9,7 @@ import { Productos } from './pages/Productos.jsx'
 import { CreacionPedido } from './pages/CreacionPedido.jsx'
 import { Pago } from './pages/Pago.jsx'
 import { PedidoCreado } from './pages/PedidoCreado.jsx'
+import { SeguimientoPedido } from './pages/SeguimientoPedido.jsx'
 import { IniciarSesion } from './pages/IniciarSesion.jsx'
 import { Registro } from './pages/Registro.jsx'
 import { RecuperarContrasena } from './pages/RecuperarContrasena.jsx'
@@ -30,6 +31,9 @@ export function App() {
               <Route path="/pedido" element={<CreacionPedido />} />
               <Route path="/pago" element={<Pago />} />
               <Route path="/pedido-creado" element={<PedidoCreado />} />
+              <Route path="/seguimiento" element={<SeguimientoPedido />} />
+              <Route path="/seguimiento/:id" element={<SeguimientoPedido />} />
+              <Route path="/mis-pedidos" element={<SeguimientoPedido />} />
 
               {/* Rutas de autenticación (redirigen si ya hay sesión activa) */}
               <Route element={<RutaPublica />}>
