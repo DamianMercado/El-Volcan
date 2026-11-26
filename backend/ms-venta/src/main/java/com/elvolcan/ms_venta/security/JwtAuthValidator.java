@@ -35,16 +35,63 @@ public class JwtAuthValidator {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    public Claims extraerClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
     public boolean validarFirmaJwt(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = extraerClaims(token);
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public Map<String, Object> extraerUsuarioDesdeToken(String authHeader) {
+        if (authHeader == null || authHeader.isBlank()) {
+            throw new SecurityException("Debe iniciar sesión para consultar sus pedidos");
+        }
+        String token = authHeader.replace("Bearer ", "").trim();
+        if (token.isBlank()) {
+            throw new SecurityException("Token JWT vacío o inválido");
+        }
+
+        if (token.chars().filter(ch -> ch == '.').count() == 2) {
+            if (!validarFirmaJwt(token)) {
+                throw new SecurityException("Firma JWT inválida o token expirado");
+            }
+            Claims claims = extraerClaims(token);
+            Number idNum = claims.get("idUsuario", Number.class);
+            String email = claims.get("email", String.class);
+            if (email == null || email.isBlank()) {
+                email = claims.getSubject();
+            }
+            String rol = claims.get("rol", String.class);
+            if (rol == null || rol.isBlank()) {
+                rol = claims.get("perfil", String.class);
+            }
+            Map<String, Object> info = new java.util.HashMap<>();
+            info.put("idUsuario", idNum != null ? idNum.longValue() : null);
+            info.put("email", email != null ? email.trim() : "");
+            info.put("rol", rol != null ? rol.trim().toUpperCase() : "CLIENTE");
+            return info;
+        }
+
+        try {
+            Map<String, Object> validacion = authClient.validarToken(token);
+            if (validacion == null || !Boolean.TRUE.equals(validacion.get("valido"))) {
+                throw new SecurityException("Token JWT no autorizado por ms-auth");
+            }
+            return validacion;
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SecurityException("No se pudo validar la identidad del usuario");
         }
     }
 
