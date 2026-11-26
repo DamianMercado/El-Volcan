@@ -41,6 +41,7 @@ export const UsuarioDesdeToken = (token) => {
 
     return {
       id: datos.idUsuario || datos.id || 1,
+      idUsuario: datos.idUsuario || datos.id || 1,
       nombre,
       nombres,
       apellidos,
@@ -89,6 +90,7 @@ export function obtenerSesion() {
 
 export function cerrarSesion() {
   localStorage.removeItem(CLAVE_SESION)
+  localStorage.removeItem('ultimo_pedido_creado')
   BorrarToken()
   try {
     window.dispatchEvent(new Event('sesion_cambiada'))

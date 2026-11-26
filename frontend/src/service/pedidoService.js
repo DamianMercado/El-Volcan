@@ -19,18 +19,80 @@ const obtenerHeadersAuth = (conJson = false) => {
 const formatearEstadoVenta = (estadoVenta) => {
   const norm = String(estadoVenta || '').toUpperCase()
   if (norm === 'ENTREGADO') return 'Entregado'
-  if (norm === 'EN_RUTA') return 'En ruta'
+  if (norm === 'EN_RUTA' || norm === 'EN_CAMINO') return 'En ruta'
+  if (norm === 'CANCELADA' || norm === 'CANCELADO') return 'Cancelada'
   return 'Pendiente'
+}
+
+const mapearEstadoHaciaBackend = (estadoUi) => {
+  const norm = String(estadoUi || '').trim().toLowerCase()
+  if (norm === 'pendiente') return 'PENDIENTE'
+  if (norm === 'en ruta' || norm === 'en_ruta' || norm === 'en_camino') return 'EN_RUTA'
+  if (norm === 'entregado') return 'ENTREGADO'
+  if (norm === 'cancelada' || norm === 'cancelado') return 'CANCELADA'
+  return ''
+}
+
+export const formatearFechaHoraChile = (valorFecha) => {
+  if (!valorFecha) return ''
+  const fechaObj = valorFecha instanceof Date ? valorFecha : new Date(valorFecha)
+  if (Number.isNaN(fechaObj.getTime())) return String(valorFecha)
+
+  const partesFecha = new Intl.DateTimeFormat('es-CL', {
+    timeZone: 'America/Santiago',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+    .format(fechaObj)
+    .replaceAll('-', '/')
+
+  const partesHora = new Intl.DateTimeFormat('es-CL', {
+    timeZone: 'America/Santiago',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(fechaObj)
+
+  return `${partesFecha} ${partesHora}`
+}
+
+const ordenarPedidosRecientes = (lista) => {
+  return [...lista].sort((a, b) => {
+    const tiempoA = a.fechaVenta ? new Date(a.fechaVenta).getTime() : 0
+    const tiempoB = b.fechaVenta ? new Date(b.fechaVenta).getTime() : 0
+    if (tiempoB !== tiempoA) return tiempoB - tiempoA
+    return Number(b.id || 0) - Number(a.id || 0)
+  })
 }
 
 const normalizarVenta = (v) => {
   const fechaObj = v.fechaVenta ? new Date(v.fechaVenta) : new Date()
   const fechaValida = !Number.isNaN(fechaObj.getTime())
+  const fechaFormateada = fechaValida
+    ? new Intl.DateTimeFormat('es-CL', {
+        timeZone: 'America/Santiago',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+        .format(fechaObj)
+        .replaceAll('-', '/')
+    : fechaDeHoy()
+  const horaFormateada = fechaValida
+    ? new Intl.DateTimeFormat('es-CL', {
+        timeZone: 'America/Santiago',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(fechaObj)
+    : ''
 
   return {
     id: String(v.id ?? ''),
-    codigo: v.codigoVenta || `EV-${v.id}`,
+    codigo: v.codigoVenta || v.codigo || `EV-${v.id}`,
     idUsuario: v.idUsuario ?? null,
+    idPago: v.idPago ?? null,
     cliente: v.cliente || 'Cliente Particular',
     rut: v.rut || '',
     email: v.email || '',
@@ -63,21 +125,14 @@ const normalizarVenta = (v) => {
     estado: v.estado && !v.estadoVenta ? v.estado : formatearEstadoVenta(v.estadoVenta),
     estadoPago: String(v.estadoPago || 'pendiente').toLowerCase(),
     repartidor: v.repartidor || null,
-    fecha: fechaValida
-      ? fechaObj
-          .toLocaleDateString('es-CL', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-          })
-          .replaceAll('-', '/')
-      : fechaDeHoy(),
-    hora: fechaValida
-      ? fechaObj.toLocaleTimeString('es-CL', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '',
+    fechaVenta: v.fechaVenta || (fechaValida ? fechaObj.toISOString() : null),
+    fecha: fechaFormateada,
+    hora: horaFormateada,
+    fechaHoraChile: horaFormateada
+      ? `${fechaFormateada} ${horaFormateada}`
+      : fechaFormateada,
+    entrega: v.entrega || null,
+    auditoria: Array.isArray(v.auditoria) ? v.auditoria : [],
     codigoTransaccion: v.codigoTransaccion || null,
     codigoAutorizacion: v.codigoAutorizacion || null,
   }
@@ -99,14 +154,152 @@ export async function ListarPedidosServicio() {
     )
   }
 
-  return datos.map(normalizarVenta)
+  return ordenarPedidosRecientes(datos.map(normalizarVenta))
+}
+
+export function esPedidoDelUsuario(pedido, usuario) {
+  if (!pedido || !usuario) return false
+
+  const idUsuarioReal = usuario.idUsuario ?? usuario.id ?? null
+  const emailUsuario = String(usuario.email || usuario.correo || '')
+    .trim()
+    .toLowerCase()
+  const emailPedido = String(pedido.email || '').trim().toLowerCase()
+
+  if (emailPedido && emailUsuario) {
+    return emailPedido === emailUsuario
+  }
+
+  if (idUsuarioReal != null && pedido.idUsuario != null) {
+    return String(pedido.idUsuario) === String(idUsuarioReal)
+  }
+
+  return false
+}
+
+export async function ListarMisPedidos(usuario) {
+  if (!usuario) return []
+
+  try {
+    const respuesta = await realizarPeticion(Rutas.misPedidos, {
+      method: 'GET',
+      headers: obtenerHeadersAuth(false),
+    })
+
+    const datos = await respuesta.json().catch(() => null)
+    if (respuesta.ok && Array.isArray(datos)) {
+      return ordenarPedidosRecientes(
+        datos.map(normalizarVenta).filter((p) => esPedidoDelUsuario(p, usuario))
+      )
+    }
+  } catch {
+    // Respaldo si el backend aún corre una versión anterior sin /mis-pedidos
+  }
+
+  const idUsuarioReal = usuario.idUsuario ?? usuario.id ?? null
+  if (!idUsuarioReal) return []
+
+  const pedidosUsuario = await ListarPedidosUsuario(idUsuarioReal)
+  return pedidosUsuario.filter((p) => esPedidoDelUsuario(p, usuario))
+}
+
+export async function ListarPedidosUsuario(idUsuario) {
+  const respuesta = await realizarPeticion(Rutas.ventasUsuario(idUsuario), {
+    method: 'GET',
+    headers: obtenerHeadersAuth(false),
+  })
+
+  const datos = await respuesta.json().catch(() => null)
+  if (!respuesta.ok || !Array.isArray(datos)) {
+    throw new Error(
+      obtenerMensaje(
+        datos?.mensaje || datos?.message,
+        'No pudimos cargar tus pedidos en este momento.',
+      ),
+    )
+  }
+
+  return ordenarPedidosRecientes(datos.map(normalizarVenta))
+}
+
+export async function ObtenerPedidoPorId(id) {
+  const respuesta = await realizarPeticion(Rutas.venta(id), {
+    method: 'GET',
+    headers: obtenerHeadersAuth(false),
+  })
+
+  const datos = await respuesta.json().catch(() => null)
+  if (!respuesta.ok || !datos) {
+    throw new Error(
+      obtenerMensaje(
+        datos?.mensaje || datos?.message,
+        'No pudimos encontrar el pedido solicitado.',
+      ),
+    )
+  }
+
+  return normalizarVenta(datos)
+}
+
+export async function ListarPedidosPaginados({
+  idUsuario = null,
+  esAdmin = false,
+  page = 0,
+  size = 5,
+  estado = '',
+} = {}) {
+  const estadoBackend = mapearEstadoHaciaBackend(estado)
+  const urlPaginada = esAdmin
+    ? Rutas.ventasPaginado({ page, size, estado: estadoBackend })
+    : Rutas.ventasUsuarioPaginado(idUsuario, { page, size, estado: estadoBackend })
+
+  try {
+    const respuesta = await realizarPeticion(urlPaginada, {
+      method: 'GET',
+      headers: obtenerHeadersAuth(false),
+    })
+
+    const datos = await respuesta.json().catch(() => null)
+    if (respuesta.ok && datos && Array.isArray(datos.content)) {
+      return {
+        content: datos.content.map(normalizarVenta),
+        totalElements: Number(datos.totalElements ?? datos.content.length),
+        totalPages: Math.max(1, Number(datos.totalPages ?? 1)),
+        number: Number(datos.number ?? page),
+        size: Number(datos.size ?? size),
+      }
+    }
+  } catch {
+    // Fallback a paginación local si el backend aún no expone /paginado
+  }
+
+  const todos = esAdmin
+    ? await ListarPedidosServicio()
+    : await ListarPedidosUsuario(idUsuario)
+
+  const filtrados = estado && estado !== 'Todos'
+    ? todos.filter((p) => p.estado.toLowerCase() === estado.toLowerCase())
+    : todos
+
+  const totalElements = filtrados.length
+  const totalPages = Math.max(1, Math.ceil(totalElements / size))
+  const paginaSegura = Math.min(Math.max(0, page), totalPages - 1)
+  const inicio = paginaSegura * size
+
+  return {
+    content: filtrados.slice(inicio, inicio + size),
+    totalElements,
+    totalPages,
+    number: paginaSegura,
+    size,
+  }
 }
 
 export const obtenerPedidos = ListarPedidosServicio
 
 export async function crearNuevoPedido(datos) {
   const payload = {
-    idUsuario: datos.idUsuario || 4,
+    idUsuario: datos.idUsuario ?? null,
     cliente: datos.cliente || 'Cliente Particular',
     rut: datos.rut || '',
     email: datos.email || '',

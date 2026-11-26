@@ -140,6 +140,9 @@ export async function ListarRepartidores() {
         ? u.direccion.split(' ').slice(0, 2).join(' ')
         : 'Ruta Asignada',
       iniciales: iniciales || 'RP',
+      telefono: u.telefono || '',
+      comuna: u.comuna || 'Puente Alto',
+      patenteCamion: u.patenteCamion || '',
     }
   })
 }

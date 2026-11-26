@@ -132,7 +132,7 @@ export function CreacionPedido() {
       // FLUJO 1: PAGAR AHORA (En línea)
       if (metodoPago === 'pagar_ahora') {
         const nuevoPedido = await crearNuevoPedido({
-          idUsuario: usuario?.id,
+          idUsuario: usuario?.idUsuario ?? usuario?.id ?? null,
           cliente: nombreFinal,
           telefono: telefonoFinal,
           rut: rutFinal,
@@ -171,7 +171,7 @@ export function CreacionPedido() {
       // FLUJO 2: PAGO AL REPARTIDOR
       if (metodoPago === 'efectivo') {
         const nuevoPedido = await crearNuevoPedido({
-          idUsuario: usuario?.id,
+          idUsuario: usuario?.idUsuario ?? usuario?.id ?? null,
           cliente: nombreFinal,
           telefono: telefonoFinal,
           rut: rutFinal,

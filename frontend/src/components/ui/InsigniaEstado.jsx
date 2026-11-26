@@ -30,7 +30,9 @@ export function InsigniaEstado({
     clave === 'critico' ||
     clave === 'stock-critico' ||
     clave === 'pendiente' ||
-    clave === 'pedido-pendiente'
+    clave === 'pedido-pendiente' ||
+    clave === 'cancelada' ||
+    clave === 'pedido-cancelada'
   ) {
     colorClase = 'bg-[#fdecea] text-[#a12a22]'
   } else if (clave === 'solicitado') {

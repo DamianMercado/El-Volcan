@@ -35,6 +35,16 @@ export const realizarPeticion = async (url, opciones = {}) => {
   }
 }
 
+const construirQueryPaginacion = ({ page = 0, size = 5, estado = '' } = {}) => {
+  const params = new URLSearchParams()
+  params.set('page', String(page))
+  params.set('size', String(size))
+  if (estado) {
+    params.set('estado', estado)
+  }
+  return params.toString()
+}
+
 export const Rutas = {
   login: `${Variables.apiUrl}/auth/login`,
   registro: `${Variables.apiUrl}/auth/registro`,
@@ -47,6 +57,15 @@ export const Rutas = {
   confirmarMovimientoInventario: (id) =>
     `${Variables.apiUrl}/inventario/movimientos/${id}/confirmar`,
   ventas: `${Variables.apiUrl}/ventas`,
+  misPedidos: `${Variables.apiUrl}/ventas/mis-pedidos`,
+  misPedidosPaginado: (opciones = {}) =>
+    `${Variables.apiUrl}/ventas/mis-pedidos/paginado?${construirQueryPaginacion(opciones)}`,
+  ventasPaginado: (opciones = {}) =>
+    `${Variables.apiUrl}/ventas/paginado?${construirQueryPaginacion(opciones)}`,
+  ventasUsuario: (idUsuario) =>
+    `${Variables.apiUrl}/ventas/usuario/${idUsuario}`,
+  ventasUsuarioPaginado: (idUsuario, opciones = {}) =>
+    `${Variables.apiUrl}/ventas/usuario/${idUsuario}/paginado?${construirQueryPaginacion(opciones)}`,
   venta: (id) => `${Variables.apiUrl}/ventas/${id}`,
   ventaRepartidor: (id, repartidor) =>
     `${Variables.apiUrl}/ventas/${id}/asignar-repartidor?repartidor=${encodeURIComponent(repartidor)}`,
