@@ -242,6 +242,68 @@ public class AuthService {
     }
 
     @Transactional
+    public AuthResponse renovarToken(String authHeaderOToken) {
+        if (authHeaderOToken == null || authHeaderOToken.isBlank()) {
+            throw new IllegalArgumentException("Se requiere un token JWT válido para renovar la sesión");
+        }
+
+        String tokenActual = authHeaderOToken.replace("Bearer ", "").trim();
+        if (tokenActual.isBlank() || !jwtUtil.validarTokenCriptografico(tokenActual)) {
+            throw new IllegalArgumentException("Firma JWT inválida o token expirado");
+        }
+
+        Optional<SesionAuth> sesionAnteriorOpt = sesionAuthRepository.findByToken(tokenActual);
+        if (sesionAnteriorOpt.isPresent()) {
+            SesionAuth sesionAnterior = sesionAnteriorOpt.get();
+            if (sesionAnterior.getEstado() != EstadoSesion.ACTIVA) {
+                throw new IllegalArgumentException("La sesión JWT ya fue cerrada o revocada");
+            }
+            // Rotación segura: invalida el token previo al emitir el nuevo
+            sesionAnterior.setEstado(EstadoSesion.CERRADA);
+            sesionAuthRepository.save(sesionAnterior);
+        }
+
+        Claims claims = jwtUtil.extraerClaims(tokenActual);
+        Number idUsuarioNum = claims.get("idUsuario", Number.class);
+        Long idUsuario = idUsuarioNum != null ? idUsuarioNum.longValue() : null;
+        String nombreUsuario = claims.get("nombreUsuario", String.class);
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            nombreUsuario = claims.get("nombre", String.class);
+        }
+        String email = claims.get("email", String.class);
+        if (email == null || email.isBlank()) {
+            email = claims.getSubject();
+        }
+        String rol = claims.get("rol", String.class);
+        if (rol == null || rol.isBlank()) {
+            rol = claims.get("perfil", String.class);
+        }
+
+        LocalDateTime ahora = LocalDateTime.now();
+        String nuevoJwt = jwtUtil.generarToken(
+                idUsuario,
+                nombreUsuario != null ? nombreUsuario : email,
+                email,
+                rol != null ? rol : "CLIENTE"
+        );
+
+        SesionAuth nuevaSesion = SesionAuth.builder()
+                .idUsuario(idUsuario)
+                .nombreUsuario(nombreUsuario != null ? nombreUsuario : email)
+                .email(email)
+                .rol(rol != null ? rol : "CLIENTE")
+                .token(nuevoJwt)
+                .fechaInicio(ahora)
+                .fechaExpiracion(ahora.plusHours(24))
+                .estado(EstadoSesion.ACTIVA)
+                .build();
+
+        SesionAuth guardada = sesionAuthRepository.save(nuevaSesion);
+        log.info("Token JWT renovado con rotación segura en ms-auth para usuario {}", email);
+        return authMapper.toResponse(guardada);
+    }
+
+    @Transactional
     public AuthResponse cerrarSesion(String token) {
         String tokenLimpio = token.replace("Bearer ", "").trim();
         SesionAuth sesion = sesionAuthRepository.findByToken(tokenLimpio)
