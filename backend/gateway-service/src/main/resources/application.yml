@@ -57,6 +57,69 @@ spring:
               - RemoveResponseHeader=Access-Control-Allow-Origin
               - RemoveResponseHeader=Access-Control-Allow-Credentials
 
+          # ==================== RUTAS OPENAPI (SWAGGER CENTRALIZADO EN :8080) ====================
+          - id: openapi-ms-auth
+            uri: lb://ms-auth
+            predicates:
+              - Path=/v3/api-docs/ms-auth
+            filters:
+              - SetPath=/v3/api-docs
+
+          - id: openapi-ms-usuario
+            uri: lb://ms-usuario
+            predicates:
+              - Path=/v3/api-docs/ms-usuario
+            filters:
+              - SetPath=/v3/api-docs
+
+          - id: openapi-ms-catalogo
+            uri: lb://ms-catalogo
+            predicates:
+              - Path=/v3/api-docs/ms-catalogo
+            filters:
+              - SetPath=/v3/api-docs
+
+          - id: openapi-ms-inventario
+            uri: lb://ms-inventario
+            predicates:
+              - Path=/v3/api-docs/ms-inventario
+            filters:
+              - SetPath=/v3/api-docs
+
+          - id: openapi-ms-venta
+            uri: lb://ms-venta
+            predicates:
+              - Path=/v3/api-docs/ms-venta
+            filters:
+              - SetPath=/v3/api-docs
+
+          - id: openapi-ms-pago
+            uri: lb://ms-pago
+            predicates:
+              - Path=/v3/api-docs/ms-pago
+            filters:
+              - SetPath=/v3/api-docs
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html
+    urls:
+      - name: 1. Autenticación JWT (ms-auth)
+        url: /v3/api-docs/ms-auth
+      - name: 2. Usuarios (ms-usuario)
+        url: /v3/api-docs/ms-usuario
+      - name: 3. Catálogo y Productos (ms-catalogo)
+        url: /v3/api-docs/ms-catalogo
+      - name: 4. Inventario y Stock (ms-inventario)
+        url: /v3/api-docs/ms-inventario
+      - name: 5. Ventas y Seguimiento (ms-venta)
+        url: /v3/api-docs/ms-venta
+      - name: 6. Pagos (ms-pago)
+        url: /v3/api-docs/ms-pago
+
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,*}

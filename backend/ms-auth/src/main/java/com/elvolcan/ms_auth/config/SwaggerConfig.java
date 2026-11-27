@@ -1,7 +1,11 @@
 package com.elvolcan.ms_auth.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,11 +14,21 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+        final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
+                .addServersItem(new Server().url("/").description("Servidor actual (API Gateway :8080 o microservicio)"))
                 .info(new Info()
-                        .title("API El Volcán - Autenticación (ms-auth)")
+                        .title("API El Volcán - Autenticación JWT (ms-auth)")
                         .version("1.0")
-                        .description("Microservicio central de autenticación encargado de autenticar todos los microservicios de El Volcán")
-                );
+                        .description("Microservicio central de autenticación JWT, renovación segura de tokens, cierre de sesión y validación para todos los microservicios de El Volcán")
+                )
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName,
+                                new SecurityScheme()
+                                        .name(securitySchemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }

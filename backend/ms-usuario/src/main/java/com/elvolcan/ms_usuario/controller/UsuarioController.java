@@ -20,7 +20,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
-@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios de El Volcán")
+@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios de El Volcán (Spring Security + JWT)")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "No autorizado: token JWT faltante o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado: permisos insuficientes")
+})
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

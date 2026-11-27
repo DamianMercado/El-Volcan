@@ -6,6 +6,8 @@ import com.elvolcan.ms_inventario.dto.response.InventarioResponse;
 import com.elvolcan.ms_inventario.dto.response.MovimientoInventarioResponse;
 import com.elvolcan.ms_inventario.service.InventarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/inventario")
 @RequiredArgsConstructor
-@Tag(name = "Inventario", description = "Gestión de stock y movimientos de inventario de El Volcán")
+@Tag(name = "Inventario", description = "Gestión de stock y movimientos de inventario de El Volcán (Requiere rol ADMIN)")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "No autorizado: token JWT faltante o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado: requiere rol ADMIN")
+})
 public class InventarioController {
 
     private final InventarioService inventarioService;

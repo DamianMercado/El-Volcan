@@ -7,6 +7,8 @@ import com.elvolcan.ms_venta.dto.response.VentaResponse;
 import com.elvolcan.ms_venta.enums.EstadoVenta;
 import com.elvolcan.ms_venta.service.VentaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/ventas")
 @RequiredArgsConstructor
-@Tag(name = "Ventas", description = "Generación y gestión de ventas de clientes de El Volcán")
+@Tag(name = "Ventas", description = "Generación, seguimiento y gestión de ventas/pedidos de El Volcán (Spring Security + JWT + OSRM)")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "No autorizado: token JWT faltante o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado: rol insuficiente para la operación")
+})
 public class VentaController {
 
     private final VentaService ventaService;

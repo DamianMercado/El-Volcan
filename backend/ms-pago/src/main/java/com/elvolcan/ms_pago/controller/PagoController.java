@@ -4,6 +4,8 @@ import com.elvolcan.ms_pago.dto.request.PagoRequest;
 import com.elvolcan.ms_pago.dto.response.PagoResponse;
 import com.elvolcan.ms_pago.service.PagoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/pagos")
 @RequiredArgsConstructor
-@Tag(name = "Pagos", description = "Procesamiento y gestión de pagos de ventas de El Volcán")
+@Tag(name = "Pagos", description = "Procesamiento y gestión de pagos de ventas de El Volcán (Spring Security + JWT)")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "No autorizado: token JWT faltante o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado: requiere rol ADMIN")
+})
 public class PagoController {
 
     private final PagoService pagoService;

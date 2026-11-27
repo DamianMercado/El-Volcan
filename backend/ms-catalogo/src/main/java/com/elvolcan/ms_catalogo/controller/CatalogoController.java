@@ -5,6 +5,8 @@ import com.elvolcan.ms_catalogo.dto.response.ProductoCatalogoResponse;
 import com.elvolcan.ms_catalogo.security.JwtAuthValidator;
 import com.elvolcan.ms_catalogo.service.CatalogoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +73,12 @@ public class CatalogoController {
 
     @PostMapping
     @Operation(summary = "Crear un nuevo producto en el catálogo (Requiere JWT Admin)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Producto creado"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "403", description = "Requiere rol ADMIN")
+    })
     public ResponseEntity<ProductoCatalogoResponse> crear(
             @Valid @RequestBody ProductoCatalogoRequest request,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -81,6 +89,13 @@ public class CatalogoController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar un producto del catálogo (Requiere JWT Admin)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto actualizado"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "403", description = "Requiere rol ADMIN"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     public ResponseEntity<ProductoCatalogoResponse> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody ProductoCatalogoRequest request,
@@ -91,6 +106,12 @@ public class CatalogoController {
 
     @PatchMapping("/{id}/imagen")
     @Operation(summary = "Actualizar la imagen de un producto del catálogo (Requiere JWT Admin)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Imagen actualizada"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "403", description = "Requiere rol ADMIN"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     public ResponseEntity<ProductoCatalogoResponse> actualizarImagen(
             @PathVariable Long id,
             @RequestParam("imagen") String imagen,
@@ -101,6 +122,12 @@ public class CatalogoController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar lógicamente un producto del catálogo (Requiere JWT Admin)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Producto eliminado"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "403", description = "Requiere rol ADMIN"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
