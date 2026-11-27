@@ -116,3 +116,69 @@ export const RecuperarClaveServicio = async ({ email, nuevaPassword }) => {
     mensaje: 'Contraseña restablecida exitosamente.',
   }
 }
+
+export const ValidarTokenServicio = async (token) => {
+  if (!token) return { valido: false }
+  const respuesta = await realizarPeticion(Rutas.validarToken, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (respuesta.status === 401 || respuesta.status === 403) {
+    return { valido: false }
+  }
+
+  const datos = await respuesta.json().catch(() => null)
+  if (!respuesta.ok || !datos) {
+    return { valido: true, sinConfirmacion: true }
+  }
+
+  return datos
+}
+
+export const RenovarTokenServicio = async (token) => {
+  if (!token) {
+    throw new Error('No hay token activo para renovar la sesión.')
+  }
+
+  const respuesta = await realizarPeticion(Rutas.refresh, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  const datos = await respuesta.json().catch(() => ({}))
+  if (!respuesta.ok || !datos.token) {
+    throw new Error(
+      obtenerMensaje(
+        datos.mensaje || datos.message,
+        'No se pudo renovar la sesión activa.',
+      ),
+    )
+  }
+
+  return {
+    token: datos.token,
+    usuario: datos,
+  }
+}
+
+export const CerrarSesionBackend = async (token) => {
+  if (!token) return
+  try {
+    await realizarPeticion(Rutas.logout, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch {
+    // Si el backend no responde, igual se completa el cierre local de sesión
+  }
+}

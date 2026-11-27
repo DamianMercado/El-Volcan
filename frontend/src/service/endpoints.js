@@ -27,12 +27,35 @@ export const obtenerMensaje = (
   return texto
 }
 
+const esRutaAuthPublica = (url) => {
+  const texto = String(url || '')
+  return (
+    texto.includes('/auth/login') ||
+    texto.includes('/auth/registro') ||
+    texto.includes('/auth/recuperar-clave') ||
+    texto.includes('/auth/logout')
+  )
+}
+
 export const realizarPeticion = async (url, opciones = {}) => {
+  let respuesta
   try {
-    return await fetch(url, opciones)
+    respuesta = await fetch(url, opciones)
   } catch {
     throw new Error(MENSAJE_ERROR_CONEXION)
   }
+
+  const headers = opciones?.headers || {}
+  const envioToken = Boolean(headers.Authorization || headers.authorization)
+  if (respuesta.status === 401 && envioToken && !esRutaAuthPublica(url)) {
+    try {
+      window.dispatchEvent(new Event('sesion_expirada'))
+    } catch {
+      // Entorno sin soporte de window
+    }
+  }
+
+  return respuesta
 }
 
 const construirQueryPaginacion = ({ page = 0, size = 5, estado = '' } = {}) => {
@@ -49,6 +72,8 @@ export const Rutas = {
   login: `${Variables.apiUrl}/auth/login`,
   registro: `${Variables.apiUrl}/auth/registro`,
   recuperarClave: `${Variables.apiUrl}/auth/recuperar-clave`,
+  validarToken: `${Variables.apiUrl}/auth/validar`,
+  refresh: `${Variables.apiUrl}/auth/refresh`,
   logout: `${Variables.apiUrl}/auth/logout`,
   productos: `${Variables.apiUrl}/catalogo`,
   producto: (id) => `${Variables.apiUrl}/catalogo/${id}`,

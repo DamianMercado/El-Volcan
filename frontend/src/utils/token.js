@@ -13,9 +13,11 @@ export const BorrarToken = () => {
   localStorage.removeItem(Variables.tokenKey)
 }
 
-export const UsuarioDesdeToken = (token) => {
-  if (!token) return null
+export const esJwtEstructural = (token) =>
+  typeof token === 'string' && token.split('.').length === 3
 
+const decodificarPayloadJwt = (token) => {
+  if (!esJwtEstructural(token)) return null
   try {
     const parte = token.split('.')[1]
     if (!parte) return null
@@ -26,37 +28,60 @@ export const UsuarioDesdeToken = (token) => {
         .map((caracter) => `%${caracter.charCodeAt(0).toString(16).padStart(2, '0')}`)
         .join(''),
     )
-    const datos = JSON.parse(json)
-
-    const nombre = datos.nombre || datos.nombreUsuario || datos.nombres
-    const perfil = (datos.perfil || datos.rol || '').toLowerCase()
-    const correo = datos.correo || datos.email || datos.sub
-
-    if (!nombre || !perfil || !correo) return null
-    if (datos.exp && datos.exp * 1000 < Date.now()) return null
-
-    const partesNombre = String(nombre).trim().split(' ')
-    const nombres = datos.nombres || partesNombre[0] || nombre
-    const apellidos = datos.apellidos ?? partesNombre.slice(1).join(' ')
-
-    return {
-      id: datos.idUsuario || datos.id || 1,
-      idUsuario: datos.idUsuario || datos.id || 1,
-      nombre,
-      nombres,
-      apellidos,
-      perfil,
-      rol: perfil,
-      correo,
-      email: correo,
-      rut: datos.rut || '',
-      telefono: datos.telefono || '',
-      direccion: datos.direccion || '',
-      depto: datos.depto || '',
-      comuna: datos.comuna || '',
-    }
+    return JSON.parse(json)
   } catch {
     return null
+  }
+}
+
+export const estaTokenExpirado = (token) => {
+  if (!esJwtEstructural(token)) return false
+  const datos = decodificarPayloadJwt(token)
+  if (!datos) return true
+  if (!datos.exp) return false
+  return datos.exp * 1000 <= Date.now()
+}
+
+export const tokenProximoAExpirar = (token, umbralMs = 30 * 60 * 1000) => {
+  if (!esJwtEstructural(token)) return false
+  const datos = decodificarPayloadJwt(token)
+  if (!datos || !datos.exp) return false
+  const restante = datos.exp * 1000 - Date.now()
+  return restante > 0 && restante <= umbralMs
+}
+
+export const UsuarioDesdeToken = (token) => {
+  if (!token) return null
+
+  const datos = decodificarPayloadJwt(token)
+  if (!datos) return null
+
+  const nombre = datos.nombre || datos.nombreUsuario || datos.nombres
+  const perfil = (datos.perfil || datos.rol || '').toLowerCase()
+  const correo = datos.correo || datos.email || datos.sub
+
+  if (!nombre || !perfil || !correo) return null
+  if (datos.exp && datos.exp * 1000 <= Date.now()) return null
+
+  const partesNombre = String(nombre).trim().split(' ')
+  const nombres = datos.nombres || partesNombre[0] || nombre
+  const apellidos = datos.apellidos ?? partesNombre.slice(1).join(' ')
+
+  return {
+    id: datos.idUsuario || datos.id || 1,
+    idUsuario: datos.idUsuario || datos.id || 1,
+    nombre,
+    nombres,
+    apellidos,
+    perfil,
+    rol: perfil,
+    correo,
+    email: correo,
+    rut: datos.rut || '',
+    telefono: datos.telefono || '',
+    direccion: datos.direccion || '',
+    depto: datos.depto || '',
+    comuna: datos.comuna || '',
   }
 }
 
