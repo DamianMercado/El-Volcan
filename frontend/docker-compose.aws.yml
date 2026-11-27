@@ -1,0 +1,14 @@
+# ==============================================================================
+# Docker Compose para AWS EC2 (Subred Pública) usando imagen de Docker Hub
+# Conecta internamente por la VPC al puerto 8080 de la instancia EC2 privada
+# ==============================================================================
+services:
+  frontend:
+    image: ${DOCKERHUB_USER}/elvolcan-frontend:latest
+    container_name: elvolcan-frontend
+    ports:
+      - "80:80"
+    environment:
+      # Ejemplo: http://10.0.2.15:8080 (IP privada de tu EC2 Backend en AWS)
+      - BACKEND_URL=${BACKEND_URL}
+    restart: unless-stopped
