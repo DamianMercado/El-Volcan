@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Map;
@@ -42,33 +43,45 @@ public class MongoUsuarioConfig {
     @Bean
     public CommandLineRunner inicializarMongoUsuarios(
             UsuarioRepository usuarioRepository,
-            MongoTemplate mongoTemplate
+            MongoTemplate mongoTemplate,
+            PasswordEncoder passwordEncoder
     ) {
         return args -> {
             try {
                 if (usuarioRepository.count() == 0) {
                     log.info("Inicializando usuarios, clientes, repartidores y zonas_despacho en MongoDB Atlas (el_volcan_db)...");
                     List<Usuario> usuarios = List.of(
-                            crearUsuario(1L, "Andrea", "Muñoz", "admin123", "admin@el-volcan.com", "11111111-1",
+                            crearUsuario(1L, "Andrea", "Muñoz", passwordEncoder.encode("admin123"), "admin@el-volcan.com", "11111111-1",
                                     "+56 9 1111 1111", "Casa Matriz El Volcán 100", "Puente Alto", RolUsuario.ADMIN,
                                     null, 1, null, List.of(-70.5758, -33.6117)),
-                            crearUsuario(2L, "Operador", "Empleado", "operador123", "operador@el-volcan.com", "22222222-2",
+                            crearUsuario(2L, "Operador", "Empleado", passwordEncoder.encode("operador123"), "operador@el-volcan.com", "22222222-2",
                                     "+56 9 2222 2222", "Av. Concha y Toro 500", "Puente Alto", RolUsuario.OPERADOR,
                                     null, 1, null, List.of(-70.5750, -33.6100)),
-                            crearUsuario(3L, "Carlos", "Ruiz", "repartidor123", "repartidor@el-volcan.com", "33333333-3",
+                            crearUsuario(3L, "Carlos", "Ruiz", passwordEncoder.encode("repartidor123"), "repartidor@el-volcan.com", "33333333-3",
                                     "+56 9 3333 3333", "Ruta Norte 120", "Puente Alto", RolUsuario.REPARTIDOR,
                                     null, 1, "KJ-WP-42", List.of(-72.1045, -36.6078)),
-                            crearUsuario(4L, "Cliente", "Usuario", "cliente123", "cliente@el-volcan.com", "44444444-4",
+                            crearUsuario(4L, "Cliente", "Usuario", passwordEncoder.encode("cliente123"), "cliente@el-volcan.com", "44444444-4",
                                     "+56 9 4444 4444", "Av. Concha y Toro 1420", "Puente Alto", RolUsuario.CLIENTE,
                                     "RESIDENCIAL", 1, null, List.of(-72.1023, -36.6067)),
-                            crearUsuario(5L, "Diego", "Fuentes", "repartidor123", "diego.fuentes@el-volcan.com", "55555555-5",
+                            crearUsuario(5L, "Diego", "Fuentes", passwordEncoder.encode("repartidor123"), "diego.fuentes@el-volcan.com", "55555555-5",
                                     "+56 9 5555 5555", "Ruta Sur 240", "La Florida", RolUsuario.REPARTIDOR,
                                     null, 2, "LP-RT-88", List.of(-72.0812, -36.6104)),
-                            crearUsuario(6L, "Valentina", "Soto", "repartidor123", "valentina.soto@el-volcan.com", "66666666-6",
+                            crearUsuario(6L, "Valentina", "Soto", passwordEncoder.encode("repartidor123"), "valentina.soto@el-volcan.com", "66666666-6",
                                     "+56 9 6666 6666", "Ruta Centro 310", "Puente Alto", RolUsuario.REPARTIDOR,
                                     null, 3, "KJ-WP-42", List.of(-71.9120, -36.6850))
                     );
                     usuarioRepository.saveAll(usuarios);
+                } else {
+                    // Migrar en caliente contraseñas en texto plano existentes en Atlas a hash BCrypt
+                    List<Usuario> existentes = usuarioRepository.findAll();
+                    List<Usuario> porActualizar = existentes.stream()
+                            .filter(u -> u.getPassword() != null && !u.getPassword().isBlank() && !u.getPassword().startsWith("$2"))
+                            .peek(u -> u.setPassword(passwordEncoder.encode(u.getPassword())))
+                            .toList();
+                    if (!porActualizar.isEmpty()) {
+                        usuarioRepository.saveAll(porActualizar);
+                        log.info("Se migraron {} contraseñas de usuarios semilla a BCrypt en MongoDB.", porActualizar.size());
+                    }
                 }
 
                 inicializarColeccionesNoSqlGeo(mongoTemplate);

@@ -29,6 +29,9 @@ public class JwtAuthValidator {
     @Value("${jwt.secret:ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}")
     private String secret;
 
+    @Value("${internal.service.key:ElVolcanInternalServiceKey2026Segura}")
+    private String internalServiceKey;
+
     private final AuthClient authClient;
 
     private SecretKey getSigningKey() {
@@ -103,6 +106,7 @@ public class JwtAuthValidator {
     @Bean
     public RequestInterceptor feignJwtRelayInterceptor() {
         return requestTemplate -> {
+            requestTemplate.header(JwtAuthenticationFilter.HEADER_INTERNAL_KEY, internalServiceKey);
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs != null) {
                 HttpServletRequest request = attrs.getRequest();
