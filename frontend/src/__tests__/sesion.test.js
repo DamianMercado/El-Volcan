@@ -4,8 +4,20 @@ import {
   obtenerSesion,
   cerrarSesion,
   rutaSegunRol,
+  estaTokenExpirado,
+  tokenProximoAExpirar,
 } from "../utils/token.js";
-import { IniciarSesion } from "../service/sesionService.js";
+import {
+  IniciarSesion,
+  RenovarTokenServicio,
+  CerrarSesionBackend,
+} from "../service/sesionService.js";
+
+const construirJwtPrueba = (payload) => {
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const body = btoa(JSON.stringify(payload));
+  return `${header}.${body}.firma-prueba`;
+};
 
 describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones con Backend", () => {
   beforeEach(() => {
@@ -82,7 +94,76 @@ describe("Pruebas Unitarias - Lógica de Negocio: Autenticación y Sesiones con 
   it("11. rutaSegunRol redirecciona al administrador a /administradora y a clientes al inicio", () => {
     expect(rutaSegunRol("admin")).toBe("/administradora");
     expect(rutaSegunRol("ADMIN")).toBe("/administradora");
+    expect(rutaSegunRol("repartidor")).toBe("/repartidor");
     expect(rutaSegunRol("cliente")).toBe("/");
     expect(rutaSegunRol(null)).toBe("/");
+  });
+
+  it("12. estaTokenExpirado y tokenProximoAExpirar detectan correctamente expiración de JWT", () => {
+    const ahoraSeg = Math.floor(Date.now() / 1000);
+    const jwtExpirado = construirJwtPrueba({
+      email: "cliente@el-volcan.com",
+      rol: "CLIENTE",
+      exp: ahoraSeg - 60,
+    });
+    const jwtPorExpirar = construirJwtPrueba({
+      email: "cliente@el-volcan.com",
+      rol: "CLIENTE",
+      exp: ahoraSeg + 300,
+    });
+    const jwtVigente = construirJwtPrueba({
+      email: "cliente@el-volcan.com",
+      rol: "CLIENTE",
+      exp: ahoraSeg + 7200,
+    });
+
+    expect(estaTokenExpirado(jwtExpirado)).toBe(true);
+    expect(estaTokenExpirado(jwtVigente)).toBe(false);
+    expect(tokenProximoAExpirar(jwtPorExpirar)).toBe(true);
+    expect(tokenProximoAExpirar(jwtVigente)).toBe(false);
+  });
+
+  it("13. RenovarTokenServicio invoca POST /api/v1/auth/refresh y retorna el token rotado", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        idUsuario: 1,
+        email: "admin@el-volcan.com",
+        rol: "ADMIN",
+        token: "nuevo-jwt-rotado",
+      }),
+    });
+
+    const resultado = await RenovarTokenServicio("jwt-anterior");
+    expect(resultado.token).toBe("nuevo-jwt-rotado");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/auth/refresh"),
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          Authorization: "Bearer jwt-anterior",
+        }),
+      })
+    );
+  });
+
+  it("14. CerrarSesionBackend revoca el token llamando a POST /api/v1/auth/logout", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ estado: "CERRADA" }),
+    });
+
+    await CerrarSesionBackend("jwt-activo");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/auth/logout"),
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          Authorization: "Bearer jwt-activo",
+        }),
+      })
+    );
   });
 });
