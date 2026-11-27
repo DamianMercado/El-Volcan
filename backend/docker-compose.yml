@@ -69,7 +69,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -91,7 +92,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -115,7 +117,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -139,7 +142,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -165,7 +169,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -193,7 +198,8 @@ services:
       - EUREKA_URL=http://eureka-server:8761/eureka/
       - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/el_volcan_db}
       - MONGO_DB=${MONGO_DB:-el_volcan_db}
-      - JWT_SECRET=ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456
+      - JWT_SECRET=${JWT_SECRET:-ElVolcanSecretKeyParaAutenticacionMicroserviciosJWT2026Segura123456}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY:-ElVolcanInternalServiceKey2026Segura}
     depends_on:
       mongodb:
         condition: service_healthy

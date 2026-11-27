@@ -1,0 +1,138 @@
+# ==============================================================================
+# Docker Compose para AWS EC2 (Subred Privada) usando imágenes de Docker Hub
+# Base de datos: MongoDB Atlas (sin contenedor local de MongoDB)
+# Puerto expuesto a la red privada VPC: SOLO 8080 (gateway-service)
+# ==============================================================================
+services:
+  eureka-server:
+    image: ${DOCKERHUB_USER}/elvolcan-eureka-server:latest
+    container_name: elvolcan-eureka
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  gateway-service:
+    image: ${DOCKERHUB_USER}/elvolcan-gateway-service:latest
+    container_name: elvolcan-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
+    depends_on:
+      - eureka-server
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-usuario:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-usuario:latest
+    container_name: elvolcan-usuario
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-auth:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-auth:latest
+    container_name: elvolcan-auth
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+      - ms-usuario
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-inventario:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-inventario:latest
+    container_name: elvolcan-inventario
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+      - ms-auth
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-catalogo:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-catalogo:latest
+    container_name: elvolcan-catalogo
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+      - ms-auth
+      - ms-inventario
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-venta:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-venta:latest
+    container_name: elvolcan-venta
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+      - ms-auth
+      - ms-catalogo
+      - ms-inventario
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+  ms-pago:
+    image: ${DOCKERHUB_USER}/elvolcan-ms-pago:latest
+    container_name: elvolcan-pago
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URL=http://eureka-server:8761/eureka/
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB:-el_volcan_db}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_KEY=${INTERNAL_SERVICE_KEY}
+    depends_on:
+      - eureka-server
+      - ms-auth
+      - ms-venta
+    networks:
+      - elvolcan-private-net
+    restart: unless-stopped
+
+networks:
+  elvolcan-private-net:
+    driver: bridge
